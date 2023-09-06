@@ -1,40 +1,184 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+	<title>reveal.js</title>
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<section>Gestion du traffic HTTP</section>
+				<section>
+					<h2>Load Balancing</h2>
+					<div class="mermaid">
+						<pre>
+							%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true }}}%%
+							graph LR
+							User -->|Requête 1,2,3| LoadBalancer
+							LoadBalancer -->|Requête 1| Server1
+							LoadBalancer -->|Requête 2| Server2
+							LoadBalancer -->|Requête 3| Server3						  </pre>
+					</div>
+				</section>
+				<section>
+					<h2>Load Balancing : Gestion des down</h2>
+					<div class="mermaid">
+						<pre>
+							%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true }}}%%
+							graph LR
+
+							%%classDef
+							classDef classAlert fill:red,color:white,stroke-width:2px,stroke:darkRed;
+							%%flowchart
+
+							User -->|Requête 1,2,3| LoadBalancer
+							LoadBalancer -->|Requête 1| Server1
+							LoadBalancer -->|Requête 2,3| Server2
+							LoadBalancer -->| | Server3
+							%%Style
+							class Server3 classAlert;
+					</pre>
+					</div>
+				</section>
+				<section>
+					<h2>Liste des Load Balancers</h2>
+					<ul>
+						<li>HAProxy - OpenSource</li>
+						<li>Seesaw - OpenSource</li>
+						<li>F5 - Propriétaire</li>
+						<li>Barracuda - Propriétaire</li>
+						<li>...</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Reverse Proxy</h2>
+					<div class="mermaid">
+						<pre>
+							%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true }}}%%
+							graph LR
+							User -->|http://h1.com\nhttp://h2.com\nhttp://h2.com/api\ndddd|Reverse[Reverse Proxy]
+							Reverse -->|http://h1.com| SiteVi[Site Vitrine]
+							Reverse -->|http://h2.com| Front
+							Reverse -->|http://h2.com/api| BackEnd
+						</pre>
+					</div>
+				</section>
+				<section>
+					<h2>Liste des Reverse Proxy</h2>
+					<ul>
+						<li>Nginx</li>
+						<li>Traefik</li>
+						<li>Apache</li>
+						<li>....</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Load Balancing Vs Reverse Proxy</h2>
+					<p><strong>C'est quoi la difference ? </strong></p>
+					<ul>
+						<li>En general les LB font RP et les RP font LB mais les objectifs sont differents</li>
+						<li>Les RP c'est pour répondre aux préoccupations des DEV (Architure de l'application)</li>
+						<li>Les LB c'est pour répondre aux préoccupations des OPS (Monter en charge/Downtime)</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Les autres Features</h2>
+					<ul>
+						<li>Gestion de certificats (Https)</li>
+						<li>Gestion de l'authentification</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>Base de données</section>
+				<section>
+					<h2>Les differents type de bdd</h2>
+					<ul>
+						<li>
+							Relationnel
+						</li>
+						<li>
+							Document
+						</li>
+						<li>
+							Colonne
+						</li>
+						<li>
+							Cle Valeur
+						</li>
+						<li>
+							(Object Storage)
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>BDD Relationnel</h2>
+					<table>
+						<tr>
+							<td>Avantage</td>
+							<td>Inconvenient</td>
+						</tr>
+						<tr>
+							<td colspan="2" style="text-align: center;">Structuré</td>
+						</tr>
+						<tr>
+							<td>Versionnable</td>
+							<td>Recherche limité</td>
+						</tr>
+						<tr>
+							<td>Transactionnel</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>Support</td>
+						</tr>
+					</table>
+				</section>
+				<section>
+					<h2>Liste de SGBD Relationnel</h2>
+					<ul>
+						<li>Postresql</li>
+						<li>MySql - MariaDB</li>
+						<li>Oracle (Propriétaire)</li>
+						<li>...</li>
+					</ul>
+				</section>
+			</section>
 		</div>
+	</div>
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script src="/node_modules/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+			mermaid: {
+				// flowchart: {
+				//   curve: 'linear',
+				// },
+			},
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMermaid]
+		});
+	</script>
+</body>
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
 </html>
