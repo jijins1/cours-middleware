@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>reveal.js</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<section>
+					<input id="password">
+					<button id="host">Start</button>
+					<button id="qa">Question</button>
+				</section>
+				<section>
+					<section>
+						<h1>Tester une application</h1>
+					</section>
+				</section>
+				<section>
+					<h1>Pourquoi tester ?</h1>
+					<img src="assets/douter.jpg"></img>
+				</section>
+				<section>
+					<h1>Pourquoi tester ?</h1>
+					<ul>
+						<li>Verifier qu'il n'y a pas de regression</li>
+						<li>Verifier que les nouvelles fonctionnalités fonctionne</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Comment tester ?</h1>
+					<img src="assets/test-pira.jpg" />
+				</section>
+			</section>
+			<section>
+				<section>
+					<h1>Les tests unitaires</h1>
+					<ul>
+						Objectif :
+						<li>Tester une class</li>
+						<li>Mocker les dependances</li>
+					</ul>
+				</section>
+				<section>
+					<h1>C'est quoi un mock ? </h1>
+					<ul>
+						<li>Le mock est un faux objet</li>
+						<li>On decrit les retours de chaque methode</li>
+						<iframe src="https://giphy.com/embed/3o84U6421OOWegpQhq" width="480" height="270"
+							frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+						<p><a href="https://giphy.com/gifs/tipsyelves-rainbow-magic-3o84U6421OOWegpQhq"></a></p>
+					</ul>
+				</section>
+				<section>
+					<iframe src="https://giphy.com/embed/f6z5TkrTIBZILYOd1t" width="480" height="480" frameBorder="0"
+						class="giphy-embed" allowFullScreen></iframe>
+					<p><a href="https://giphy.com/gifs/NetflixisaJoke-netflix-iglesias-mr-f6z5TkrTIBZILYOd1t"></a>
+					</p>
+				</section>
+				<section>
+					<h1>Feature</h1>
+					<p>
+						Faire une virement d'un montant x entre 2 compte.
+						Retirer X au compte source et ajouter X au compte cible
+					</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h1>Les test d'integrations</h1>
+					<ul>
+						<li>Charge tout ou une partie de l'application</li>
+						<li>Met en place une base de donnée</li>
+						<li>Quelque mock</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Pourquoi faire un test d'integration</h1>
+					<ul>
+						<li>Tester la communication entre les class</li>
+						<li>Tester la communication avec le framework</li>
+						<li>Verifier la compatibilite de la base</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Pourquoi faire des tests unitaire ? Les test d'integration ca suffit ? </h2>
+					<div class="r-stack">
+						<div class="fragment fade-in-then-out">
+							<iframe src="https://giphy.com/embed/6XPmkX0c6Z868tLYu4" width="480" height="480"
+								frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+							<p><a href="https://giphy.com/gifs/warning-danger-meter-6XPmkX0c6Z868tLYu4"></a>
+							</p>
+						</div>
+
+						<ul class="fragment fade-left">
+							<li>C'est Long à executer</li>
+							<li>C'est plus compliquer à maintenir</li>
+						</ul>
+					</div>
+				</section>
+				<section>
+					<h1>C'est quoi la base ? C'est pas un postgres ! </h1>
+					<p>C'est une base H2</p>
+					<p>Base SQL in memory, attention il y a des petite difference avec postgres</p>
+				</section>
+				<section>
+					<h1>
+						Je dois me connecter à un middleware comment faire
+					</h1>
+					<p>Essayer TestContainer</p>
+				</section>
+				<section>
+					<h1>Je test mon client http qui se connecte a l'api d'un fournisseur</h1>
+					<p> Les Test ne doivent jamais faire de vrai requete vers un serveur externe</p>
+				</section>
+			</section>
+			<section>
+				<h1>C'est quoi un fake</h1>
+				<ul>
+					<li>Une implementation simplifier</li>
+					<li>Exemple : remplace une repository par une implementation qui stock dans une map</li>
+				</ul>
+			</section>
+
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script src="/node_modules/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.js"></script>
+	<script src="/node_modules/reveal.js-plugins/seminar/plugin.js"></script>
+
+	<script src="/node_modules/reveal.js-plugins/questions/plugin.js"></script>
+	<link rel="stylesheet" src="/node_modules/reveal.js-plugins/questions/style.css" />
+
+	<script src="/node_modules/reveal.js-plugins/chart/plugin.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"></script>
+
+	<script src="/node_modules/reveal.js-plugins/poll/plugin.js"></script>
+	<link rel="stylesheet" src="/node_modules/reveal.js-plugins/poll/style.css" />
+
+
+	<!-- Font awesome is used by several plugins -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+	<script src="/node_modules/reveal.js-plugins/customcontrols/plugin.js"></script>
+	<link rel="stylesheet" src="/node_modules/reveal.js-plugins/customcontrols/style.css" />
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+			customcontrols: {
+				controls: [
+					{
+						id: 'toggle-questions',
+						title: 'Toggle Q&A dashboard (Q)',
+						icon: '<span class="fa-stack" style="margin: -24px -12px;padding:0;"><span class="fa-solid fa-comment fa-stack-1x"></span><strong class="fa-stack-1x fa-inverse qna question-counter" style="font-size:0.5em;"></strong></span>',
+						action: 'RevealQnA.toggleQnA();'
+					}
+				]
+			},
+			mermaid: {
+				// flowchart: {
+				//   curve: 'linear',
+				// },
+			},
+			seminar: {
+				server: "https://seminar.ruokki.ovh",
+				room: "Room",
+				hash: "$2a$05$/5raPgGCvjzgDAK4Rp5sB.Voe46V4YhrlQbfNYzrdalqSJfn9fRoy",
+				autoJoin: true
+			},
+			chart: {
+				defaults: {
+					backgroundColor: 'white'
+				},
+				bar: { backgroundColor: ["grey", "red", "grey"] },
+			},
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealChart, RevealNotes, RevealMermaid, RevealCustomControls, RevealSeminar, RevealQnA, RevealPoll]
+		});
+		document.querySelector("#host").addEventListener('click', function (e) {
+			console.log("Start seminar")
+			RevealSeminar.open_or_join_room(document.getElementById('password').value);
+		});
+		document.querySelector("#qa").addEventListener('click', function (e) {
+			console.log("Start qa")
+			RevealQnA.toggleQnA();
+		});
+		document.addEventListener('keydown', (event) => {
+			var name = event.key;
+			var code = event.code;
+			if (name === 'q' & event.ctrlKey) {
+				RevealQnA.toggleQnA();;
+			}
+		}, false);
+	</script>
+</body>
+
+</html>

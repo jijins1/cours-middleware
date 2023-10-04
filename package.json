@@ -102,6 +102,7 @@
     }
   },
   "dependencies": {
-    "reveal.js-mermaid-plugin": "^2.0.0"
+    "reveal.js-mermaid-plugin": "^2.0.0",
+    "reveal.js-plugins": "^4.2.2"
   }
 }
