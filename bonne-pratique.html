@@ -26,32 +26,99 @@
 				</section>
 				<section>
 					<section>
-						<h1>Tester une application</h1>
+						<h1>Bonne pratique : organiser son code</h1>
 					</section>
 				</section>
+
 				<section>
-					<h1>Pourquoi tester ?</h1>
-					<img src="assets/douter.jpg"></img>
+					<h2>Ranger les packages : 1 Niveaux</h2>
+					<figure>
+						<pre>
+						app/
+						|- config/
+						|- controller/
+						|- repository/
+						|- service/
+						|
+						</pre>
+					</figure>
 				</section>
 				<section>
-					<h1>Pourquoi tester ?</h1>
+					<h2>Ranger les packages : Domaine</h2>
+					<pre>
+						app/
+						|- compta/
+						| |- config/
+						| |- controller/
+						| |- repository/
+						| |- service/
+						|
+						|- facture/
+						| |- config/
+						| |- controller/
+						| |- repository/
+						| |- service/
+					</pre>
+				</section>
+				<section>
+					<h1>Ranger les packages : Domaine</h1>
 					<ul>
-						<li>Verifier qu'il n'y a pas de regression</li>
-						<li>Verifier que les nouvelles fonctionnalités fonctionne</li>
+						<li>Regrouper les element par domaine fonctionnel</li>
+						<li>Facilite l'exploration du projet</li>
 					</ul>
 				</section>
 				<section>
-					<h1>Comment tester ?</h1>
-					<img src="assets/test-pira.jpg" />
+					<h2>Ranger les packages : En domain + identifier les entre sortie</h2>
+					<pre>
+						app/
+						|- compta/
+						| |- config/
+						| |- in/
+						| |	|- controller/
+						| | |- amqp/
+						| |- out/ 
+						| | |- repository/
+						| |- service/
+						|
+						|- facture/
+						| |- config/
+						| |- in/
+						| | |- controller/
+						| |- out/
+						| | |- repository/
+						| | |- compta/
+						| |- service/
+					</pre>
+				</section>
+				<section>
+					<h2>Ranger les packages : En domain + identifier les entre sortie</h2>
+					<div>
+						<ul>
+							<li>Identifier les dependances</li>
+							<li>Faciliter les études d'impact</li>
+						</ul>
+					</div>
 				</section>
 			</section>
 			<section>
 				<section>
-					<h1>TDD</h1>
+					<h1>Organiser son code</h1>
 				</section>
-				<section> 
-					<h2>C'est quoi tdd</h2>
-					<img src="assets/tdd.webp">
+				<section>
+					<h2>Petit exercice</h2>
+					<ol class="">
+						<li class="fragment">Implementer un  objet Afficheur :</li>
+						<li class="fragment">avec une methode afficher(String message) qui System.out.printLn(message)</li>
+						<li class="fragment">Ajouter un verification si la string contient un “a” on affiche pas le message</li>
+						<li class="fragment">Dans une methode main : Avoir 2 instanc d'afficheur un qui affiche le message en Minuscule et l’autre en Majuscule</li>
+						<li class="fragment">Ajouter un check pour l’afficheur en majuscule, il faut que la string fasse 5 charactere</li>
+						<li class="fragment">Faire une troisieme version qui doit afficher normalement et uniquement verifier si la chaine de caractere a une taille de 5</li>
+						
+					</ol>
+				</section>
+				<section>
+					<h2>Composition over abstraction</h2>
+					
 				</section>
 				<section>
 					<h2>Pourquoi ?</h2>
@@ -60,107 +127,6 @@
 						<li>Faire des test de qualité</li>
 					</ul>
 				</section>
-			</section>
-			<section>
-				<section>
-					<h1>Les tests unitaires</h1>
-					<ul>
-						Objectif :
-						<li>Tester une class</li>
-						<li>Mocker les dependances</li>
-					</ul>
-				</section>
-				<section>
-					<h1>C'est quoi un mock ? </h1>
-					<ul>
-						<li>Le mock est un faux objet</li>
-						<li>On decrit les retours de chaque methode</li>
-						<iframe src="https://giphy.com/embed/3o84U6421OOWegpQhq" width="480" height="270"
-							frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
-						<p><a href="https://giphy.com/gifs/tipsyelves-rainbow-magic-3o84U6421OOWegpQhq"></a></p>
-					</ul>
-				</section>
-				<section>
-					<iframe src="https://giphy.com/embed/f6z5TkrTIBZILYOd1t" width="480" height="480" frameBorder="0"
-						class="giphy-embed" allowFullScreen></iframe>
-					<p><a href="https://giphy.com/gifs/NetflixisaJoke-netflix-iglesias-mr-f6z5TkrTIBZILYOd1t"></a>
-					</p>
-				</section>
-				<section>
-					<h1>Feature</h1>
-					<p>
-						Faire une virement d'un montant x entre 2 compte.
-						Retirer X au compte source et ajouter X au compte cible
-					</p>
-				</section>
-			</section>
-			<section>
-				<section>
-					<h1>Les test d'integrations</h1>
-					<ul>
-						<li>Charge tout ou une partie de l'application</li>
-						<li>Met en place une base de donnée</li>
-						<li>Quelque mock</li>
-					</ul>
-				</section>
-				<section>
-					<h1>Pourquoi faire un test d'integration</h1>
-					<ul>
-						<li>Tester la communication entre les class</li>
-						<li>Tester la communication avec le framework</li>
-						<li>Verifier la compatibilite de la base</li>
-					</ul>
-				</section>
-				<section>
-					<h2>Pourquoi faire des tests unitaire ? Les test d'integration ca suffit ? </h2>
-					<div class="r-stack">
-						<div class="fragment fade-in-then-out">
-							<iframe src="https://giphy.com/embed/6XPmkX0c6Z868tLYu4" width="480" height="480"
-								frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
-							<p><a href="https://giphy.com/gifs/warning-danger-meter-6XPmkX0c6Z868tLYu4"></a>
-							</p>
-						</div>
-
-						<ul class="fragment fade-left">
-							<li>C'est Long à executer</li>
-							<li>C'est plus compliquer à maintenir</li>
-							<li>C'est plus compliquer à debugguer</li>
-						</ul>
-					</div>
-				</section>
-				<section>
-					<h2>Plusieurs niveau de test d'integration</h2>
-					<ul>
-						<li>Test de repository -> Test de la base</li>
-						<li>Test de Service -> Test du framework + base/transaction</li>
-						<li>Test de controlleur -> Test auth + Mapping (Json -> Dto -> Domain) + PATH </li>
-					</ul>
-				</section>
-				<section>
-					
-				</section>
-				<section>
-					<h1>C'est quoi la base ? C'est pas un postgres ! </h1>
-					<p>C'est une base H2</p>
-					<p>Base SQL in memory, attention il y a des petite difference avec postgres</p>
-				</section>
-				<section>
-					<h1>
-						Je dois me connecter à un middleware comment faire
-					</h1>
-					<p>Essayer TestContainer</p>
-				</section>
-				<section>
-					<h1>Je test mon client http qui se connecte a l'api d'un fournisseur</h1>
-					<p> Les Test ne doivent jamais faire de vrai requete vers un serveur externe</p>
-				</section>
-			</section>
-			<section>
-				<h1>C'est quoi un fake*</h1>
-				<ul>
-					<li>Une implementation simplifier</li>
-					<li>Exemple : remplace une repository par une implementation qui stock dans une map</li>
-				</ul>
 			</section>
 		</div>
 	</div>
