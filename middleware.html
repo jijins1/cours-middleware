@@ -236,15 +236,15 @@
 						<tr>
 							<td>Simple à utiliser</td>
 							<td>Pas de transactions</td>
-						</tr>	
+						</tr>
 						<tr>
 							<td>Scalable</td>
 							<td>Pas de jointures</td>
-						</tr>	
+						</tr>
 						<tr>
 							<td>Scalable</td>
 							<td>Stockage en memoire RAM</td>
-						</tr>	
+						</tr>
 
 					</table>
 				</section>
@@ -307,9 +307,9 @@
 						<pre>
 							%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true }}}%%
 							graph LR
-							ServiceCompta --> |sql |Relationnel
+							ServiceCompta --> |sql |Relationnel[(Relationnel)]
 							ServiceCompta --> |event | ServiceRecherche
-							ServiceRecherche --> |document| Document 
+							ServiceRecherche --> |document| Document[(Document)] 
 						</pre>
 					</div>
 				</section>
@@ -318,18 +318,18 @@
 						<pre>
 							%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true }}}%%
 							graph LR
-							ServiceCompta --> |sql |RelationnelCompta
-							ServiceClient --> |sql |RelationnelClient
+							ServiceCompta --> |sql |RelationnelCompta[(RelationnelCompta)]
+							ServiceClient --> |sql |RelationnelClient[(RelationnelClient)]
 							ServiceCompta --> |event | ServiceRecherche
 							ServiceFacture --> |event | ServiceRecherche
 							ServiceClient --> |event | ServiceRecherche
-							ServiceRecherche --> |document| Document 
-							ServiceFacture --> |sql |RelationnelFacture
+							ServiceRecherche --> |document| Document[(Document)] 
+							ServiceFacture --> |sql |RelationnelFacture[(RelationnelFacture)]
 						</pre>
 					</div>
 				</section>
 				<section>
-					<h1 >Bonne pratique</h1>
+					<h1>Bonne pratique</h1>
 					<ul>
 						<li>Une base de donnée ne se partage pas (Entre application differentes)</li>
 						<li>Une base ca se sauvegarde</li>
@@ -372,6 +372,89 @@
 						<li>MQTT - (Mosquitto)</li>
 						<li>Kafka</li>
 					</ul>
+				</section>
+				<section>
+					<h2>AMQP dans spring</h2>
+					<p>La dependence : </p>
+					<pre>
+						<code data-trim  data-noescape> 
+						 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+						</code>
+					</pre>
+
+				</section>
+				<section>
+					<H2>Configuration des queues ('Hard-way')</H2>
+					<pre>
+
+						<code data-trim data-line-numbers="|5-8|10-16|19-25" data-noescape>
+								@Configuration
+								public class QueueConfiguration {
+								
+								    public static final String TEMPERATURE_QUEUE = "temperatureQueue";
+									@Bean
+								    TopicExchange appExchange() {
+								        return new TopicExchange("exchange", true, false);
+								    }
+								
+								    @Bean
+								    public Queue temperatureQueue() {
+								        return QueueBuilder
+								                .durable(TEMPERATURE_QUEUE)
+								                .quorum()
+								                .build();
+								    }
+								
+								
+								    @Bean
+								    public Binding temperatureBinding(
+								            Queue temperatureQueue,
+								            TopicExchange appExchange
+								    ) {
+								        return BindingBuilder.bind(temperatureQueue).to(appExchange).with("sensors.temp.#");
+								    }
+								}
+							
+						</code>
+					</pre>
+
+				</section>
+				<section>
+					<h2>Configuration du listener</h2>
+					<pre>
+						<code>
+							@Service
+							public class TemperatureListener {
+								...
+							
+							    @RabbitListener(queues = TEMPERATURE_QUEUE)
+							    public void temperatureChange(String temperature) {
+							        log.info("temperature {}", temperature);
+							        temperatureService.receive(temperature);
+							    }
+								...
+							}
+
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h2>Gestion des erreurs</h2>
+					<p>Par defauts, les messages en erreurs sont rejoué à l'infini</p>
+					<p>Il est conseille de mettre en place un deadLetterQueue</p>
+				</section>
+				<section>
+					<h2>Dead Letter Queue</h2>
+					<div class="mermaid">
+						<pre>
+							%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true }}}%%
+							graph LR
+
+							Producer[Producer] --> | |Queue 
+							Queue -->  | ERROR | Consumer
+							Queue --> | | DeadLetterQueue
+						</pre>
+					</div>
 				</section>
 			</section>
 		</div>

@@ -19,11 +19,313 @@
 	<div class="reveal">
 		<div class="slides">
 			<section>
+				<input id="password">
+				<button id="host">Start</button>
+				<button id="qa">Question</button>
+			</section>
+			<section>
 				<section>
-					<input id="password">
-					<button id="host">Start</button>
-					<button id="qa">Question</button>
+					<h1>Organiser son code</h1>
 				</section>
+				<section>
+					<h2>Petit exercice</h2>
+					<ol style="font-size: 0.7em;">
+						<li class="fragment">Implementer un objet Afficheur :</li>
+						<li class="fragment">avec une methode afficher(String message) qui System.out.printLn(message)
+						</li>
+						<li class="fragment">Ajouter un verification si la string contient un “a” on affiche pas le
+							message</li>
+						<li class="fragment">Dans une methode main : Avoir 2 instanc d'afficheur un qui affiche le
+							message en Minuscule et l’autre en Majuscule</li>
+						<li class="fragment">Ajouter un check pour l’afficheur en majuscule, il faut que la string fasse
+							5 charactere</li>
+						<li class="fragment">Faire une troisieme version qui doit afficher normalement et uniquement
+							verifier si la chaine de caractere a une taille de 5</li>
+
+					</ol>
+				</section>
+				<section>
+					<h1>Principe Solide</h1>
+					<table>
+						<tr>
+							<td>S</td>
+							<td>Single responsibility principle</td>
+						</tr>
+						<tr>
+							<td>O</td>
+							<td>Open/closed</td>
+						</tr>
+						<tr>
+							<td>L</td>
+							<td>Liskov substitution principle</td>
+						</tr>
+						<tr>
+							<td>I</td>
+							<td>Interface segregation principle</td>
+						</tr>
+						<tr>
+							<td>D</td>
+							<td>Dependency inversion principle</td>
+						</tr>
+					</table>
+				</section>
+				<section>
+					<h2>Eviter les objets fourre tout/trop gros (S) </h2>
+					<ul class="r-stack">
+						<li class="fragment fade-in-then-out">
+							Valable sur les services et les entités (Qui sont souvent la racine du probleme)
+						</li>
+						<li class="fragment fade-in-then-out">
+							Decouper les objets en "groupe logique"
+							<pre>
+								<code data-trim data-line-numbers  data-noescape>
+									public class Client{
+										private String raisonSociale;
+										private String ville;
+										private String rue;
+										private String codePostal;
+									}
+								</code>
+							</pre>
+
+						</li>
+						<li class="fragment fade-in-then-out">
+							Decouper les objets en "groupe logique"
+							<pre>
+								<code data-trim data-line-numbers  data-noescape>
+									public class Client{
+										private String raisonSociale;
+										private Adresse adresse;
+									}
+									public class Adresse{
+										private String ville;
+										private String rue;
+										private String codePostal;
+									}
+								</code>
+							</pre>
+						</li>
+						<li class="fragment fade-in-then-out">
+							Decouper les objets en "groupe logique"
+							<pre>
+								<code data-trim data-line-numbers data-noescape>
+									public class Client{
+										private String raisonSociale;
+										private Adresse adresse;
+										private Adresse adresseFacturation;
+									}
+
+									public class Adresse{
+										private String ville;
+										private String rue;
+										private String codePostal;
+									}
+								</code>
+							</pre>
+						</li>
+						<li class="fragment fade-in-then-out">
+							Decouper les objets en "groupe logique"
+							<pre>
+								<code data-trim data-line-numbers data-noescape>
+									public class Utilisateur{
+										private String nom;
+										private String prenom;
+										private String mail;
+										private String password;
+									}
+									public class Docteur{
+										private Utilisateur utilisateur;
+										private String numeroPraticien;
+									}
+									public class Patient {
+										private Utilisateur utilisateur;
+										private Docteur docteur;
+									}
+								</code>
+							</pre>
+						</li>
+
+					</ul>
+				</section>
+				<section>
+					<h2>Composition over abstraction</h2>
+					<div class="r-stack">
+						<ul class="fragment fade-in-then-out">
+							<li>
+								L'abstraction n'est pas la solution pour factoriser du code
+							</li>
+							<li>
+								90% du temps l'abstraction est mal utilisé (Source moi )
+							</li>
+						</ul>
+						<ul class="fragment fade-in-then-out">
+							<h3>Mauvais exemple </h3>
+							<pre>
+									<code data-trim data-line-numbers data-noescape>
+										public class AbstractBidule{
+											abstract void doSomething()
+											public void doOther(){
+												...
+												(doSomething is never called)
+												...
+											}
+										}
+										public class BiduleTruc extends AbstractBidule{
+											@Override
+											void doSomething(){
+												this.doOther()
+											}
+										}
+									</code>
+								</pre>
+						</ul>
+						<ul class="fragment fade-in-then-out">
+							<h3>Bonne exemple </h3>
+							<pre>
+									<code data-trim data-line-numbers data-noescape>
+										public class AbstractBidule{
+											abstract void doSomething()
+											abstract boolean doThird()
+											public void doOther(){
+												if(this.doThird()){
+													this.doSomething()
+												}
+											}
+										}
+										public class BiduleTruc extends AbstractBidule{
+											@Override
+											void doSomething(){
+												....
+											}
+											@Override
+											boolean doThird(){
+												....
+												return result;
+											}
+										}
+									</code>
+								</pre>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h1>Bonne pratique : Designer son api rest</h1>
+				</section>
+				<section>
+					<h2>Ne pas retourner les entité dans les controllers</h2>
+					<ul>
+						<li>Eviter beaucoup de probleme (Serialisation cyclique, cacher des champs (Password...))</li>
+						<li>Maitriser le schema</li>
+						<li>Versionner l'api</li>
+						<li>Utiliser un DTO</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Découper les ressources</h2>
+					<div>
+						<div>
+							<p>Objet exemple :</p>
+							<pre>
+								<code data-trim data-line-numbers data-noescape>
+										public class Animal{
+											private Long id;
+											private String nom;
+											private List&lt;Animal&gt; enfants;
+											private List&lt;Repas&gt; repas;
+											private Espece espece;
+										}
+								</code>
+							</pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h2>Mauvaise pratique</h2>
+					Get /animals/12
+					<pre>
+						<code data-trim data-line-numbers="1-14|4-9|10|11-13" data-noescape >
+							{
+								"id": "12",
+								"nom": "Paul",
+								"enfants" :[
+								  {
+									"id": "13", 
+									"nom": "Paul2"
+								  }
+								],
+								"repas": [],
+								"espece": {
+									"nom": "pingouin"
+								}
+							}
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h2>Bonne pratique</h2>
+					<div class="r-stack">
+						<div class="fragment fade-in-then-out">
+							<p>Get /animals/12</p>
+							<pre>
+								<code data-trim data-noescape>
+									{
+										"id": 12;
+										"nom": "Paul"
+										"espece": {
+											"nom": "pingouin"
+										}
+									}
+								</code>
+							</pre>
+						</div>
+						<div class="fragment fade-in-then-out">
+							<p>Get /animals?parent=12</p>
+							<pre>
+								<code data-trim data-noescape>
+									[
+										{
+											"id": 13;
+											"nom": "Paul2"                
+										}
+									]
+								</code>
+							</pre>
+						</div>
+						<div class="fragment fade-in-then-out">
+							<p>Get /repas?animal=12</p>
+							<pre>
+								<code data-trim  data-noescape>
+									[
+										{
+											"id": 13;
+											"nom": "Paul2"
+										}
+									]
+								</code>
+							</pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h2>Utilisation des verbes</h1>
+					<ul>
+						<li>
+							Decrire une action : /fusees/12/launch
+						</li>
+						<li>
+							Eviter les :
+							<ul>
+								<li>init :  Le post suffit</li>
+								<li>search : Le get sufit </li>
+								<li>delete : le verbe http existe</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section>
 				<section>
 					<section>
 						<h1>Bonne pratique : organiser son code</h1>
@@ -100,34 +402,7 @@
 					</div>
 				</section>
 			</section>
-			<section>
-				<section>
-					<h1>Organiser son code</h1>
-				</section>
-				<section>
-					<h2>Petit exercice</h2>
-					<ol class="">
-						<li class="fragment">Implementer un  objet Afficheur :</li>
-						<li class="fragment">avec une methode afficher(String message) qui System.out.printLn(message)</li>
-						<li class="fragment">Ajouter un verification si la string contient un “a” on affiche pas le message</li>
-						<li class="fragment">Dans une methode main : Avoir 2 instanc d'afficheur un qui affiche le message en Minuscule et l’autre en Majuscule</li>
-						<li class="fragment">Ajouter un check pour l’afficheur en majuscule, il faut que la string fasse 5 charactere</li>
-						<li class="fragment">Faire une troisieme version qui doit afficher normalement et uniquement verifier si la chaine de caractere a une taille de 5</li>
-						
-					</ol>
-				</section>
-				<section>
-					<h2>Composition over abstraction</h2>
-					
-				</section>
-				<section>
-					<h2>Pourquoi ?</h2>
-					<ul>
-						<li>Reduire le temps de dev</li>
-						<li>Faire des test de qualité</li>
-					</ul>
-				</section>
-			</section>
+
 		</div>
 	</div>
 
