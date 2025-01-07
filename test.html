@@ -20,15 +20,6 @@
 		<div class="slides">
 			<section>
 				<section>
-					<ol>
-						<li>Ctrl + q :  Ouvrir/fermer le panel de question</li>
-					</ol>
-	
-					<input type="password" id="password">
-					<button id="host">Start</button>
-					<button id="qa">Question</button>
-				</section>
-				<section>
 					<section>
 						<h1>Tester une application</h1>
 					</section>
@@ -40,8 +31,8 @@
 				<section>
 					<h1>Pourquoi tester ?</h1>
 					<ul>
-						<li>Verifier qu'il n'y a pas de regression</li>
-						<li>Verifier que les nouvelles fonctionnalités fonctionne</li>
+						<li>Verifier qu'il n'y a pas de régression</li>
+						<li>Verifier que les nouvelles fonctionnalités fonctionnent</li>
 					</ul>
 				</section>
 				<section>
@@ -66,34 +57,6 @@
 				</section>
 				<section>
 					<h2>Pourquoi on gagne du temps</h2>
-				</section>
-				<section>
-					<h4>Pourquoi on gagne du temps</h4>
-					<div style="display: flex; flex-direction: column;" class="poll" data-poll="boucle-test">
-						<button data-value="curl">
-							Curl
-						</button>
-						<button data-value="front">
-							Front
-						</button>
-						<button data-value="deux">
-							Les deux
-						</button>
-						<button data-value="test">
-							Test integration
-						</button>
-					</div>
-					<p style="font-size:24px;color:gray;">Responses: <span class="voters" data-poll="boucle-test">0</span>
-					</p>
-				</section>
-				<section>
-					<div style="position: relative;height:480px!important;">
-						<canvas data-chart="bar" data-poll="boucle-test">
-							, curl, front, deux, test
-							, 0, 0, 0, 0
-						</canvas>
-					</div>
-				</section>
 				<section>
 					<h2>A la main</h2>
 					<ul>
@@ -103,11 +66,20 @@
 					</ul>
 				</section>
 				<section>
-					<h2>Avec des Test</h2>
+					<h2>Avec des Tests</h2>
 					<ul>
 						<li>Lancer le test</li>
 					</ul>
 				</section>
+				<section>
+					<h2>Mon (vrai) avis sur le tdd</h2>
+					<ul>
+						<li>Essentiel pour le débogage</li>
+						<li>Pratique pour des Poc Technique</li>
+					        <li>Compliqué pour reflechir a une architecture</li>
+					</ul>
+				</section>
+
 			</section>
 			<section>
 				<section>
@@ -121,7 +93,7 @@
 				<section>
 					<h1>C'est quoi un mock ? </h1>
 					<ul>
-						<li>Le mock est un faux objet</li>
+						<li>Le mock est un "faux" objet</li>
 						<li>On decrit les retours de chaque methode</li>
 						<iframe src="https://giphy.com/embed/3o84U6421OOWegpQhq" width="480" height="270"
 							frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
@@ -152,9 +124,9 @@
 				<section>
 					<h1>Les test d'integrations</h1>
 					<ul>
-						<li>Charge tout ou une partie de l'application</li>
+						<li>Lancer tout ou une partie de l'application</li>
 						<li>Met en place une base de donnée</li>
-						<li>Quelque mock</li>
+						<li>Quelque mock (Service externe)</li>
 					</ul>
 				</section>
 				<section>
@@ -162,7 +134,7 @@
 					<ul>
 						<li>Tester la communication entre les class</li>
 						<li>Tester la communication avec le framework</li>
-						<li>Verifier la compatibilite de la base</li>
+						<li>Verifier la compatibilité de la base</li>
 					</ul>
 				</section>
 				<section>
@@ -177,13 +149,13 @@
 
 						<ul class="fragment fade-left">
 							<li>C'est Long à executer</li>
-							<li>C'est plus compliquer à maintenir</li>
-							<li>C'est plus compliquer à debugguer</li>
+							<li>C'est plus compliqué à maintenir</li>
+							<li>C'est plus compliqué à debugguer</li>
 						</ul>
 					</div>
 				</section>
 				<section>
-					<h2>Plusieurs niveau de test d'integration</h2>
+					<h2>Plusieurs niveaux de test d'integration</h2>
 					<ul>
 						<li>Test de repository -> Test de la base</li>
 						<li>Test de Service -> Test du framework + base/transaction</li>
@@ -215,7 +187,7 @@
 			</section>
 			<section>
 				<section>
-					<h1>Les test End-to-end</h1>
+					<h1>Les tests End-to-end</h1>
 				</section>
 				<section>
 					<h2>Principe</h2>
