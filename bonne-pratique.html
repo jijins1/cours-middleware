@@ -25,17 +25,17 @@
 				<section>
 					<h2>Petit exercice</h2>
 					<ol style="font-size: 0.7em;">
-						<li class="fragment">Implementer un objet Afficheur :</li>
-						<li class="fragment">avec une methode afficher(String message) qui System.out.printLn(message)
+						<li class="fragment">Implémenter un objet Afficheur :</li>
+						<li class="fragment">avec une méthode afficher(String message) qui System.out.printLn(message)
 						</li>
-						<li class="fragment">Ajouter un verification si la string contient un “a” on affiche pas le
+						<li class="fragment">Ajouter un vérification si la string contient un "a" on n'affiche pas le
 							message</li>
-						<li class="fragment">Dans une methode main : Avoir 2 instanc d'afficheur un qui affiche le
-							message en Minuscule et l’autre en Majuscule</li>
-						<li class="fragment">Ajouter un check pour l’afficheur en majuscule, il faut que la string fasse
-							5 charactere</li>
-						<li class="fragment">Faire une troisieme version qui doit afficher normalement et uniquement
-							verifier si la chaine de caractere a une taille de 5</li>
+						<li class="fragment">Dans une méthode main : Avoir 2 instance d'afficheur un qui affiche le
+							message en Minuscule et l'autre en Majuscule</li>
+						<li class="fragment">Ajouter un check pour l'afficheur en majuscule, il faut que la string fasse
+							5 caractère</li>
+						<li class="fragment">Faire une troisième version qui doit afficher normalement et uniquement
+							vérifier si la chaîne de caractère a une taille de 5</li>
 
 					</ol>
 				</section>
@@ -68,7 +68,7 @@
 					<h2>Eviter les objets fourre tout/trop gros (S) </h2>
 					<ul class="r-stack">
 						<li class="fragment fade-in-then-out">
-							Valable sur les services et les entités (Qui sont souvent la racine du probleme)
+							Valable sur les services et les entités (Qui sont souvent la racine du problème)
 						</li>
 						<li class="fragment fade-in-then-out">
 							Decouper les objets en "groupe logique"
@@ -168,6 +168,7 @@
 										public class BiduleTruc extends AbstractBidule{
 											@Override
 											void doSomething(){
+                                                ...
 												this.doOther()
 											}
 										}
@@ -206,14 +207,14 @@
 			</section>
 			<section>
 				<section>
-					<h1>Bonne pratique : Designer son api rest</h1>
+					<h1>Bonne pratique : Designer son API REST</h1>
 				</section>
 				<section>
 					<h2>Ne pas retourner les entité dans les controllers</h2>
 					<ul>
-						<li>Eviter beaucoup de probleme (Serialisation cyclique, cacher des champs (Password...))</li>
-						<li>Maitriser le schema</li>
-						<li>Versionner l'api</li>
+						<li>Éviter beaucoup de problème (Sérialisation cyclique, cacher des champs (Password...))</li>
+						<li>Maîtriser le schema</li>
+						<li>Versionner l'API</li>
 						<li>Utiliser un DTO</li>
 					</ul>
 				</section>
@@ -304,16 +305,16 @@
 					</div>
 				</section>
 				<section>
-					<h2>Utilisation des verbes</h1>
+					<h2>Utilisation des verbes</h2>
 					<ul>
 						<li>
-							Decrire une action : /fusees/12/launch
+							Décrire une action : /fusees/12/launch
 						</li>
 						<li>
-							Eviter les :
+							Éviter les :
 							<ul>
 								<li>init :  Le post suffit</li>
-								<li>search : Le get sufit </li>
+								<li>search : Le get suffit </li>
 								<li>delete : le verbe http existe</li>
 							</ul>
 						</li>
@@ -360,7 +361,7 @@
 				<section>
 					<h1>Ranger les packages : Domaine</h1>
 					<ul>
-						<li>Regrouper les element par domaine fonctionnel</li>
+						<li>Regrouper les éléments par domaine fonctionnel</li>
 						<li>Facilite l'exploration du projet</li>
 					</ul>
 				</section>
@@ -391,7 +392,7 @@
 					<h2>Ranger les packages : En domain + identifier les entre sortie</h2>
 					<div>
 						<ul>
-							<li>Identifier les dependances</li>
+							<li>Identifier les dépendances</li>
 							<li>Faciliter les études d'impact</li>
 						</ul>
 					</div>
