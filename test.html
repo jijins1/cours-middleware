@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<meta charset="utf-8">
@@ -26,25 +26,25 @@
 				</section>
 				<section>
 					<h1>Pourquoi tester ?</h1>
-					<img src="assets/douter.jpg"></img>
+					<img src="assets/douter.jpg" alt="Image illustrant le concept de pourquoi tester">
 				</section>
 				<section>
 					<h1>Pourquoi tester ?</h1>
 					<ul>
-						<li>Verifier qu'il n'y a pas de régression</li>
-						<li>Verifier que les nouvelles fonctionnalités fonctionnent</li>
+						<li>Vérifier qu'il n'y a pas de régression</li>
+						<li>Vérifier que les nouvelles fonctionnalités fonctionnent</li>
 					</ul>
 				</section>
 				<section>
 					<h1>Comment tester ?</h1>
-					<img src="assets/test-pira.jpg" />
+					<img src="assets/test-pira.jpg" alt="Schéma représentant comment tester" />
 				</section>
 				<section>
 					<h1>Quand tester ?</h1>
 					<div class="r-stack">
-						<img class="fragment" src="assets/test-1-legend.jpg"/>
-						<img class="fragment" src="assets/test-1-iteration.png"/>
-						<img class="fragment" src="assets/test-3-iteration.png"/>
+						<img class="fragment" src="assets/test-1-legend.jpg" alt="Légende de la première itération de test"/>
+						<img class="fragment" src="assets/test-1-iteration.png" alt="Image de la première itération de test"/>
+						<img class="fragment" src="assets/test-3-iteration.png" alt="Image de la troisième itération de test"/>
 					</div>
 				</section>
 			</section>
@@ -53,8 +53,8 @@
 					<h1>TDD</h1>
 				</section>
 				<section> 
-					<h2>C'est quoi tdd</h2>
-					<img src="assets/tdd.webp">
+					<h2>C'est quoi TDD</h2>
+					<img src="assets/tdd.webp" alt="Image représentant le développement dirigé par les tests">
 				</section>
 				<section>
 					<h2>Pourquoi ?</h2>
@@ -67,7 +67,7 @@
 					<h2>Pourquoi on gagne du temps</h2>
 				</section>
 				<section>
-					<h2>A la main</h2>
+					<h2>À la main</h2>
 					<ul>
 						<li>Démarrer l'appli </li>
 						<li>Préparer / reset les données</li>
@@ -84,8 +84,8 @@
 					<h2>Mon (vrai) avis sur le tdd</h2>
 					<ul>
 						<li>Essentiel pour le débogage</li>
-						<li>Pratique pour des Poc Technique</li>
-					        <li>Compliqué pour reflechir a une architecture</li>
+						<li>Pratique pour des POC techniques</li>
+					        <li>Compliqué pour réfléchir à une architecture</li>
 					</ul>
 				</section>
 
@@ -95,15 +95,15 @@
 					<h1>Les tests unitaires</h1>
 					<ul>
 						Objectif :
-						<li>Tester une class</li>
-						<li>Mocker les dependances</li>
+						<li>Tester une classe</li>
+						<li>Mocker les dépendances</li>
 					</ul>
 				</section>
 				<section>
 					<h1>C'est quoi un mock ? </h1>
 					<ul>
 						<li>Le mock est un "faux" objet</li>
-						<li>On decrit les retours de chaque methode</li>
+						<li>On décrit les retours de chaque méthode</li>
 						<iframe src="https://giphy.com/embed/3o84U6421OOWegpQhq" width="480" height="270"
 							frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
 						<p><a href="https://giphy.com/gifs/tipsyelves-rainbow-magic-3o84U6421OOWegpQhq"></a></p>
@@ -118,10 +118,10 @@
 				<section>
 					<h1>Feature</h1>
 					<p>
-						Faire une virement d'un montant x entre 2 compte.
+						Faire un virement d'un montant x entre 2 comptes.
 						Retirer X au compte source et ajouter X au compte cible
-						Le montant du virement doit etre positif
-						Si le compte source fini avec - de 0 on envoi un montant de 0.5 vers le compte banque 
+						Le montant du virement doit être positif
+						Si le compte source finit avec moins de 0 on envoie un montant de 0.5 vers le compte de la banque 
 					</p>
 				</section>
 				<section>
@@ -133,23 +133,23 @@
 			</section>
 			<section>
 				<section>
-					<h1>Les test d'integrations</h1>
+					<h1>Les tests d'intégrations</h1>
 					<ul>
 						<li>Lancer tout ou une partie de l'application</li>
-						<li>Met en place une base de donnée</li>
-						<li>Quelque mock (Service externe)</li>
+						<li>Mets en place une base de données</li>
+						<li>Quelques mocks (Services externes)</li>
 					</ul>
 				</section>
 				<section>
-					<h1>Pourquoi faire un test d'integration</h1>
+					<h1>Pourquoi faire un test d'intégration</h1>
 					<ul>
-						<li>Tester la communication entre les class</li>
+						<li>Tester la communication entre les classes</li>
 						<li>Tester la communication avec le framework</li>
-						<li>Verifier la compatibilité de la base</li>
+						<li>Vérifier la compatibilité de la base</li>
 					</ul>
 				</section>
 				<section>
-					<h2>Pourquoi faire des tests unitaire ? Les test d'integration ca suffit ? </h2>
+					<h2>Pourquoi faire des tests unitaires ? Les tests d'intégration ça suffit ? </h2>
 					<div class="r-stack">
 						<div class="fragment fade-in-then-out">
 							<iframe src="https://giphy.com/embed/6XPmkX0c6Z868tLYu4" width="480" height="480"
@@ -159,41 +159,41 @@
 						</div>
 
 						<ul class="fragment fade-left">
-							<li>C'est Long à executer</li>
+							<li>C'est long à exécuter</li>
 							<li>C'est plus compliqué à maintenir</li>
-							<li>C'est plus compliqué à debugguer</li>
+							<li>C'est plus compliqué à déboguer</li>
 						</ul>
 					</div>
 				</section>
 				<section>
-					<h2>Plusieurs niveaux de test d'integration</h2>
+					<h2>Plusieurs niveaux de test d'intégration</h2>
 					<ul>
 						<li>Test de repository -> Test de la base</li>
 						<li>Test de Service -> Test du framework + base/transaction</li>
-						<li>Test de controlleur -> Test auth + Mapping (Json -> Dto -> Domain) + PATH </li>
+						<li>Test de contrôleur -> Test auth + Mapping (JSON -> DTO -> Domain) + PATH </li>
 					</ul>
 				</section>
 				<section>
-					<h2>Test de controller</h2>
+					<h2>Test de contrôleur</h2>
 					<ul>
 						<li>Utiliser MockMvc</li>
-						<li>Mocker les Service (On veut verifier le mapping)</li>
+						<li>Mocker les Services (On veut vérifier le mapping)</li>
 					</ul>
 				</section>
 				<section>
 					<h1>C'est quoi la base ? C'est pas un postgres ! </h1>
 					<p>C'est une base H2</p>
-					<p>Base SQL in memory, attention il y a des petite difference avec postgres</p>
+					<p>Base SQL in memory, attention il y a des petites différences avec PostgreSQL</p>
 				</section>
 				<section>
 					<h1>
 						Je dois me connecter à un middleware comment faire
 					</h1>
-					<p>Essayer TestContainer</p>
+					<p>Essayer Testcontainers</p>
 				</section>
 				<section>
-					<h1>Je test mon client http qui se connecte a l'api d'un fournisseur</h1>
-					<p> Les Test ne doivent jamais faire de vrai requete vers un serveur externe</p>
+					<h1>Je teste mon client HTTP qui se connecte à l'API d'un fournisseur</h1>
+					<p> Les tests ne doivent jamais faire de vraie requête vers un serveur externe</p>
 				</section>
 			</section>
 			<section>
@@ -203,33 +203,33 @@
 				<section>
 					<h2>Principe</h2>
 					<ul>
-						<li>Lancer une application complete (Middleware/BackEnd/FrontEnd)</li>
-						<li>Simuler des actions sur un navigateurs</li>
-						<li>Verifier le comportement de l'application</li>
+						<li>Lancer une application complète (Middleware/BackEnd/FrontEnd)</li>
+						<li>Simuler des actions sur un navigateur</li>
+						<li>Vérifier le comportement de l'application</li>
 					</ul>
 				</section>
 				<section>
 					<h2>Objectif</h2>
 					<ol>
-						<li>Verifier que tout communique correctement</li>
+						<li>Vérifier que tout communique correctement</li>
 					</ol>
 				</section>
 				<section>
 					<h2>Difficulté</h2>
 					<ol>
-						<li>Preparer la base</li>
-						<li>Lourd à executer</li>
-						<li>Lourd à ecrire</li>
-						<li>Quand les executer ?</li>
-						<li>Difficile a maintenir</li>
+						<li>Préparer la base</li>
+						<li>Lourd à exécuter</li>
+						<li>Lourd à écrire</li>
+						<li>Quand les exécuter ?</li>
+						<li>Difficile à maintenir</li>
 					</ol>
 				</section>
 				<section>
-					<h2>Faut il le faire</h2>
+					<h2>Faut-il le faire</h2>
 					<ol>
 						<li>Oui !!!</li>
-						<li>Au moins sur les chemins usuel</li>
-						<li>Ne remplace pas les tests manuel</li>
+						<li>Au moins sur les chemins usuels</li>
+						<li>Ne remplace pas les tests manuels</li>
 					</ol>
 				</section>
 				<section>
@@ -239,8 +239,8 @@
 			<section>
 				<h1>C'est quoi un fake*</h1>
 				<ul>
-					<li>Une implementation simplifier</li>
-					<li>Exemple : remplace un repository par une implementation qui stock dans une map</li>
+					<li>Une implémentation simplifiée</li>
+					<li>Exemple : remplace un repository par une implémentation qui stocke dans une map</li>
 				</ul>
 			</section>
 		</div>
@@ -254,13 +254,13 @@
 	<script src="/node_modules/reveal.js-plugins/seminar/plugin.js"></script>
 
 	<script src="/node_modules/reveal.js-plugins/questions/plugin.js"></script>
-	<link rel="stylesheet" src="/node_modules/reveal.js-plugins/questions/style.css" />
+	<link rel="stylesheet" href="/node_modules/reveal.js-plugins/questions/style.css" />
 
 	<script src="/node_modules/reveal.js-plugins/chart/plugin.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.min.js"></script>
 
 	<script src="/node_modules/reveal.js-plugins/poll/plugin.js"></script>
-	<link rel="stylesheet" src="/node_modules/reveal.js-plugins/poll/style.css" />
+	<link rel="stylesheet" href="/node_modules/reveal.js-plugins/poll/style.css" />
 
 
 	<!-- Font awesome is used by several plugins -->
@@ -268,7 +268,7 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
 	<script src="/node_modules/reveal.js-plugins/customcontrols/plugin.js"></script>
-	<link rel="stylesheet" src="/node_modules/reveal.js-plugins/customcontrols/style.css" />
+	<link rel="stylesheet" href="/node_modules/reveal.js-plugins/customcontrols/style.css" />
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
 	<script>
