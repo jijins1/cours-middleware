@@ -110,6 +110,23 @@
 					</ul>
 				</section>
 				<section>
+					<h1>Exemple de Mock avec Mockito</h1>
+					<pre><code class="hljs language-java">@InjectMocks
+private Calculator calculator;
+
+@Mock
+private AdditionService additionService;
+
+// Exemple d'utilisation
+@Test
+public void testAdd() {
+    Mockito.when(additionService.add(2, 3)).thenReturn(5);
+    int result = calculator.calculate(2, 3);
+    assertEquals(5, result);
+    Mockito.verify(additionService).add(2, 3);
+}</code></pre>
+				</section>
+				<section>
 					<iframe src="https://giphy.com/embed/f6z5TkrTIBZILYOd1t" width="480" height="480" frameBorder="0"
 						class="giphy-embed" allowFullScreen></iframe>
 					<p><a href="https://giphy.com/gifs/NetflixisaJoke-netflix-iglesias-mr-f6z5TkrTIBZILYOd1t"></a>
@@ -117,12 +134,12 @@
 				</section>
 				<section>
 					<h1>Feature</h1>
-					<p>
-						Faire un virement d'un montant x entre 2 comptes.
-						Retirer X au compte source et ajouter X au compte cible
-						Le montant du virement doit être positif
-						Si le compte source finit avec moins de 0 on envoie un montant de 0.5 vers le compte de la banque 
-					</p>
+					<ul>
+						<li>Faire un virement d'un montant x entre 2 comptes.</li>
+						<li>Retirer X au compte source et ajouter X au compte cible</li>
+						<li>Le montant du virement doit être positif</li>
+						<li>Si le compte source finit avec moins de 0 on envoie un montant de 0.5 vers le compte de la banque</li>
+					</ul>
 				</section>
 				<section>
 					<h1>Play Time</h1>
