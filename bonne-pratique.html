@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-	<title>reveal.js</title>
+	<title>Bonnes pratiques</title>
 
 	<link rel="stylesheet" href="dist/reset.css">
 	<link rel="stylesheet" href="dist/reveal.css">
@@ -13,414 +13,577 @@
 
 	<!-- Theme used for syntax highlighted code -->
 	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	<link rel="stylesheet" href="css/cours.css">
 </head>
 
 <body>
 	<div class="reveal">
 		<div class="slides">
-			<section>
-				<section>
-					<h1>Organiser son code</h1>
-				</section>
-				<section>
-					<h2>Petit exercice</h2>
-					<ol style="font-size: 0.7em;">
-						<li class="fragment">Implémenter un objet Afficheur :</li>
-						<li class="fragment">avec une méthode afficher(String message) qui System.out.printLn(message)
-						</li>
-						<li class="fragment">Ajouter un vérification si la string contient un "a" on n'affiche pas le
-							message</li>
-						<li class="fragment">Dans une méthode main : Avoir 2 instance d'afficheur un qui affiche le
-							message en Minuscule et l'autre en Majuscule</li>
-						<li class="fragment">Ajouter un check pour l'afficheur en majuscule, il faut que la string fasse
-							5 caractère</li>
-						<li class="fragment">Faire une troisième version qui doit afficher normalement et uniquement
-							vérifier si la chaîne de caractère a une taille de 5</li>
+			<section data-ak-join>
+				<h2>Rejoignez la séance</h2>
+				<p>Scannez le QR code ou entrez le code sur votre téléphone.</p>
+			</section>
 
-					</ol>
+			<!-- Introduction -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Cours</p>
+					<h1>Bonnes pratiques</h1>
+					<p>Organiser son code pour qu'il reste facile à changer</p>
+					<aside class="notes">Fil rouge : FraisDirect, l'épicerie en ligne des autres cours. Son code a grossi, et chaque modification devient plus risquée. On voit trois façons de garder le code facile à changer : découper les objets, designer l'API, ranger les packages.</aside>
 				</section>
 				<section>
-					<h1>Principe Solide</h1>
+					<h2>Le code de FraisDirect a grossi</h2>
+					<ul>
+						<li class="fragment">Une classe <code>Client</code> de 40 champs</li>
+						<li class="fragment">Un <code>CommandeService</code> qui envoie aussi les mails et les factures</li>
+						<li class="fragment">Une API qui renvoie tout, tout le temps</li>
+						<li class="fragment">Un package <code>service/</code> de 80 classes</li>
+					</ul>
+					<p class="fragment">Rien n'est faux. Mais chaque modification prend une journée.</p>
+					<aside class="notes">Demander à la salle s'ils ont déjà vu ça en entreprise ou en projet. Chaque point correspond à une partie du cours.</aside>
+				</section>
+				<section>
+					<h2>Au programme</h2>
+					<ol>
+						<li>Découper ses objets : <strong>SOLID</strong> et la <strong>composition</strong></li>
+						<li>Designer son <strong>API REST</strong></li>
+						<li>Ranger ses <strong>packages</strong></li>
+					</ol>
+					<aside class="notes">On commence par un petit exercice : il servira d'exemple pour la composition.</aside>
+				</section>
+			</section>
+
+			<!-- Acte 1 : découper ses objets -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 1</p>
+					<h1>Découper ses objets</h1>
+					<p>Des classes petites, qui font une seule chose</p>
+					<aside class="notes">On part d'un exercice qui a l'air simple et qui devient vite pénible si on l'aborde avec l'héritage.</aside>
+				</section>
+				<section>
+					<p class="kicker">Exercice</p>
+					<h2>Petit exercice</h2>
+					<ol style="font-size: 0.75em;">
+						<li class="fragment">Implémenter un objet <code>Afficheur</code> avec une méthode <code>afficher(String message)</code> qui fait <code>System.out.println(message)</code></li>
+						<li class="fragment">Ajouter une vérification : si le message contient un « a », on ne l'affiche pas</li>
+						<li class="fragment">Dans un <code>main</code> : deux afficheurs, un en minuscules et un en majuscules</li>
+						<li class="fragment">L'afficheur en majuscules vérifie aussi que le message fait 5 caractères</li>
+						<li class="fragment">Un troisième affiche normalement et vérifie <strong>uniquement</strong> la taille de 5</li>
+					</ol>
+					<aside class="notes">Dérouler une consigne à la fois, et laisser les étudiants coder après chacune. La dernière consigne est le piège : elle ne veut pas la vérification du « a ». Ceux qui ont fait de l'héritage doivent tout défaire. On garde leurs solutions pour la partie composition.</aside>
+				</section>
+				<section>
+					<h2>Les principes SOLID</h2>
 					<table>
-						<tr>
-							<td>S</td>
-							<td>Single responsibility principle</td>
-						</tr>
-						<tr>
-							<td>O</td>
-							<td>Open/closed</td>
-						</tr>
-						<tr>
-							<td>L</td>
-							<td>Liskov substitution principle</td>
-						</tr>
-						<tr>
-							<td>I</td>
-							<td>Interface segregation principle</td>
-						</tr>
-						<tr>
-							<td>D</td>
-							<td>Dependency inversion principle</td>
-						</tr>
+						<tbody>
+							<tr>
+								<td><strong>S</strong></td>
+								<td>Single responsibility</td>
+								<td>Une classe, une seule raison de changer</td>
+							</tr>
+							<tr>
+								<td><strong>O</strong></td>
+								<td>Open/closed</td>
+								<td>Ajouter un comportement sans modifier l'existant</td>
+							</tr>
+							<tr>
+								<td><strong>L</strong></td>
+								<td>Liskov substitution</td>
+								<td>Une sous-classe peut remplacer sa mère</td>
+							</tr>
+							<tr>
+								<td><strong>I</strong></td>
+								<td>Interface segregation</td>
+								<td>Des petites interfaces plutôt qu'une grosse</td>
+							</tr>
+							<tr>
+								<td><strong>D</strong></td>
+								<td>Dependency inversion</td>
+								<td>Dépendre d'interfaces, pas d'implémentations</td>
+							</tr>
+						</tbody>
 					</table>
+					<aside class="notes">Cinq principes, une phrase chacun. On ne détaille que le S, celui qu'on viole le plus souvent. Le D, ils l'ont déjà utilisé sans le savoir dans le cours sur les tests : c'est lui qui permet de passer un mock à CommandeService.</aside>
 				</section>
 				<section data-ak-question="choice" data-ak-choices="5" data-ak-id="solid-classe">
 					<h4>Une classe <code>ClientService</code> gère les clients, envoie les mails et génère les factures PDF. Quel principe viole-t-elle surtout ?</h4>
-					<ul style="list-style: none;">
+					<ul>
 						<li><strong>A.</strong> S : Single responsibility</li>
 						<li><strong>B.</strong> O : Open/closed</li>
 						<li><strong>C.</strong> L : Liskov substitution</li>
 						<li><strong>D.</strong> I : Interface segregation</li>
 						<li><strong>E.</strong> D : Dependency inversion</li>
 					</ul>
+					<aside class="notes">Réponse A. Trois raisons de changer : les règles client, le contenu des mails, le format des factures. Un changement de mise en page de la facture oblige à toucher la classe qui gère les clients.</aside>
 				</section>
 				<section>
-					<h2>Eviter les objets fourre tout/trop gros (S) </h2>
-					<ul class="r-stack">
-						<li class="fragment fade-in-then-out">
-							Valable sur les services et les entités (Qui sont souvent la racine du problème)
-						</li>
-						<li class="fragment fade-in-then-out">
-							Decouper les objets en "groupe logique"
-							<pre>
-								<code data-trim data-line-numbers  data-noescape>
-									public class Client{
-										private String raisonSociale;
-										private String ville;
-										private String rue;
-										private String codePostal;
-									}
-								</code>
-							</pre>
-
-						</li>
-						<li class="fragment fade-in-then-out">
-							Decouper les objets en "groupe logique"
-							<pre>
-								<code data-trim data-line-numbers  data-noescape>
-									public class Client{
-										private String raisonSociale;
-										private Adresse adresse;
-									}
-									public class Adresse{
-										private String ville;
-										private String rue;
-										private String codePostal;
-									}
-								</code>
-							</pre>
-						</li>
-						<li class="fragment fade-in-then-out">
-							Decouper les objets en "groupe logique"
-							<pre>
-								<code data-trim data-line-numbers data-noescape>
-									public class Client{
-										private String raisonSociale;
-										private Adresse adresse;
-										private Adresse adresseFacturation;
-									}
-
-									public class Adresse{
-										private String ville;
-										private String rue;
-										private String codePostal;
-									}
-								</code>
-							</pre>
-						</li>
-						<li class="fragment fade-in-then-out">
-							Decouper les objets en "groupe logique"
-							<pre>
-								<code data-trim data-line-numbers data-noescape>
-									public class Utilisateur{
-										private String nom;
-										private String prenom;
-										private String mail;
-										private String password;
-									}
-									public class Docteur{
-										private Utilisateur utilisateur;
-										private String numeroPraticien;
-									}
-									public class Patient {
-										private Utilisateur utilisateur;
-										private Docteur docteur;
-									}
-								</code>
-							</pre>
-						</li>
-
-					</ul>
-				</section>
-				<section>
-					<h2>Composition over abstraction</h2>
-					<div class="r-stack">
-						<ul class="fragment fade-in-then-out">
-							<li>
-								L'abstraction n'est pas la solution pour factoriser du code
-							</li>
-							<li>
-								90% du temps l'abstraction est mal utilisé (Source moi )
-							</li>
-						</ul>
-						<ul class="fragment fade-in-then-out">
-							<h3>Mauvais exemple </h3>
-							<pre>
-									<code data-trim data-line-numbers data-noescape>
-										public class AbstractBidule{
-											abstract void doSomething()
-											public void doOther(){
-												...
-												(doSomething is never called)
-												...
-											}
-										}
-										public class BiduleTruc extends AbstractBidule{
-											@Override
-											void doSomething(){
-                                                ...
-												this.doOther()
-											}
-										}
-									</code>
-								</pre>
-						</ul>
-						<ul class="fragment fade-in-then-out">
-							<h3>Bonne exemple </h3>
-							<pre>
-									<code data-trim data-line-numbers data-noescape>
-										public class AbstractBidule{
-											abstract void doSomething()
-											abstract boolean doThird()
-											public void doOther(){
-												if(this.doThird()){
-													this.doSomething()
-												}
-											}
-										}
-										public class BiduleTruc extends AbstractBidule{
-											@Override
-											void doSomething(){
-												....
-											}
-											@Override
-											boolean doThird(){
-												....
-												return result;
-											}
-										}
-									</code>
-								</pre>
-						</ul>
+					<h2>S : découper un service</h2>
+					<div class="mermaid">
+						<pre>
+							graph LR
+							A["ClientService (clients, mails, factures)"]:::gros
+							A -.->|découpé en| B[ClientService]
+							A -.-> C[MailService]
+							A -.-> D[FactureService]
+							classDef gros fill:#3b1418,stroke:#f87171,color:#fecaca
+						</pre>
 					</div>
+					<ul>
+						<li class="fragment">Chaque classe a une seule raison de changer</li>
+						<li class="fragment">Chaque classe se teste seule, avec moins de mocks</li>
+					</ul>
+					<aside class="notes">Lien avec le cours sur les tests : une classe qui fait trois choses a trois fois plus de dépendances à mocker. Une classe dure à tester est souvent une classe trop grosse.</aside>
+				</section>
+				<section>
+					<h2>S : les entités aussi</h2>
+					<p>Les entités sont souvent la racine du problème</p>
+					<pre><code class="language-java" data-trim>
+public class Client {
+    private String nom;
+    private String rue;
+    private String ville;
+    private String codePostal;
+}
+					</code></pre>
+					<p class="fragment">La rue, la ville et le code postal vont toujours ensemble…</p>
+					<aside class="notes">Demander ce qu'ils remarquent. Trois champs qui n'ont de sens qu'ensemble : c'est un objet qui n'a pas encore de nom.</aside>
+				</section>
+				<section>
+					<h2>Étape 1 · Un groupe logique</h2>
+					<pre><code class="language-java" data-trim data-line-numbers="3|6-10">
+public class Client {
+    private String nom;
+    private Adresse adresse;
+}
+
+public class Adresse {
+    private String rue;
+    private String ville;
+    private String codePostal;
+}
+					</code></pre>
+					<aside class="notes">L'adresse devient un objet. La validation du code postal, par exemple, a maintenant une place évidente : dans Adresse.</aside>
+				</section>
+				<section>
+					<h2>Étape 2 · Le besoin change</h2>
+					<p>FraisDirect livre à une adresse et facture à une autre</p>
+					<pre><code class="language-java" data-trim data-line-numbers="3-4">
+public class Client {
+    private String nom;
+    private Adresse adresseLivraison;
+    private Adresse adresseFacturation;
+}
+					</code></pre>
+					<p class="fragment">Une ligne de plus, au lieu de quatre champs copiés.</p>
+					<aside class="notes">Sans l'étape 1, il aurait fallu rueFacturation, villeFacturation, codePostalFacturation… et dupliquer la validation. Le découpage paie dès le premier changement.</aside>
+				</section>
+				<section>
+					<h2>Étape 3 · Des rôles différents</h2>
+					<p>Un client et un livreur ont tous les deux un compte</p>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|1-5|7-10|12-15">
+public class Utilisateur {
+    private String nom;
+    private String email;
+    private String motDePasse;
+}
+
+public class Client {
+    private Utilisateur utilisateur;
+    private Adresse adresseLivraison;
+}
+
+public class Livreur {
+    private Utilisateur utilisateur;
+    private String immatriculation;
+}
+					</code></pre>
+					<aside class="notes">Client et Livreur contiennent un Utilisateur, ils n'en héritent pas. C'est de la composition, le sujet de la suite.</aside>
+				</section>
+				<section>
+					<h2>Composition over inheritance</h2>
+					<ul>
+						<li class="fragment">L'héritage n'est pas la solution pour factoriser du code</li>
+						<li class="fragment">90 % du temps, il est mal utilisé <small>(source : moi)</small></li>
+					</ul>
+					<aside class="notes">Le réflexe classique : deux classes ont du code en commun, donc on crée une classe abstraite. On va voir pourquoi c'est rarement une bonne idée, et le cas où ça l'est.</aside>
+				</section>
+				<section>
+					<h2>Mauvais exemple</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|2|4-7|10-14">
+abstract class Notification {
+    abstract void envoyer(Commande commande);
+
+    protected String formaterMontant(long centimes) {
+        return String.format("%d,%02d €",
+                centimes / 100, centimes % 100);
+    }
+}
+
+class NotificationMail extends Notification {
+    void envoyer(Commande commande) {
+        String montant = formaterMontant(commande.montant());
+        // … envoie le mail
+    }
+}
+					</code></pre>
+					<p class="fragment">La mère n'appelle jamais <code>envoyer</code> : elle sert juste de boîte à outils</p>
+					<aside class="notes">Conséquence : FactureService veut aussi formater un montant. Il doit hériter de Notification ? Non. Et en Java, on n'hérite que d'une seule classe. Le code partagé doit aller dans sa propre classe.</aside>
+				</section>
+				<section>
+					<h2>Bon exemple</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|2-6|8-9|12-19">
+abstract class Notification {
+    final void notifier(Commande commande) {
+        if (accepte(commande.client())) {
+            envoyer(commande);
+        }
+    }
+
+    abstract boolean accepte(Client client);
+    abstract void envoyer(Commande commande);
+}
+
+class NotificationSms extends Notification {
+    boolean accepte(Client client) {
+        return client.accepteLesSms();
+    }
+
+    void envoyer(Commande commande) {
+        // … envoie le SMS
+    }
+}
+					</code></pre>
+					<aside class="notes">Ici la mère appelle les méthodes abstraites : elle définit le déroulé, les filles remplissent les trous. C'est le bon usage d'une classe abstraite (le patron « template method »).</aside>
+				</section>
+				<section>
+					<h2>Retour à l'afficheur</h2>
+					<p>Le format et la vérification deviennent des objets</p>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|2-3|11-15">
+class Afficheur {
+    private final Function&lt;String, String&gt; format;
+    private final Predicate&lt;String&gt; verification;
+
+    Afficheur(Function&lt;String, String&gt; format,
+              Predicate&lt;String&gt; verification) {
+        this.format = format;
+        this.verification = verification;
+    }
+
+    void afficher(String message) {
+        if (verification.test(message)) {
+            System.out.println(format.apply(message));
+        }
+    }
+}
+					</code></pre>
+					<aside class="notes">Correction de l'exercice. Plus aucune sous-classe : un afficheur est assemblé à partir d'un format et d'une vérification.</aside>
+				</section>
+				<section>
+					<h2>Retour à l'afficheur</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|1-2|4|6-8|10-11">
+Predicate&lt;String&gt; sansA = m -&gt; !m.contains("a");
+Predicate&lt;String&gt; cinqCaracteres = m -&gt; m.length() == 5;
+
+var minuscule = new Afficheur(String::toLowerCase, sansA);
+
+var majuscule = new Afficheur(
+        String::toUpperCase,
+        sansA.and(cinqCaracteres));
+
+var normal = new Afficheur(
+        Function.identity(), cinqCaracteres);
+					</code></pre>
+					<p class="fragment">La consigne piège devient une ligne : on assemble autrement</p>
+					<aside class="notes">Avec l'héritage, le troisième afficheur cassait toute la hiérarchie car il ne voulait pas la vérification du « a ». Avec la composition, on choisit les briques. Comparer avec les solutions des étudiants.</aside>
+				</section>
+				<section class="retenir">
+					<h2>À retenir</h2>
+					<ul>
+						<li>Une classe, une seule raison de changer</li>
+						<li>Des champs qui vont ensemble forment un objet</li>
+						<li>Pour partager du code : une classe à part, injectée</li>
+						<li>Une classe abstraite seulement si la mère appelle les méthodes des filles</li>
+					</ul>
+					<aside class="notes">Le test simple : si la classe mère n'appelle jamais ses méthodes abstraites, l'héritage ne sert qu'à partager du code, et la composition fait mieux.</aside>
 				</section>
 			</section>
+
+			<!-- Acte 2 : API REST -->
 			<section>
-				<section>
-					<h1>Bonne pratique : Designer son API REST</h1>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 2</p>
+					<h1>Designer son API REST</h1>
+					<p>Ce que voit le front n'est pas ce qui est en base</p>
+					<aside class="notes">L'API est un contrat avec le front et les autres équipes. Une fois publiée, elle est difficile à changer : autant la penser dès le début.</aside>
 				</section>
 				<section data-ak-question="yesno" data-ak-id="entite-controller">
 					<h4>Retourner directement l'entité JPA <code>Client</code> (avec son mot de passe) depuis un <code>@RestController</code>, bonne idée ?</h4>
+					<aside class="notes">Réponse : non. Faire justifier les réponses avant de passer à la suite.</aside>
 				</section>
 				<section>
-					<h2>Ne pas retourner les entité dans les controllers</h2>
+					<h2>Ce qui se passe</h2>
+					<pre><code class="language-java" data-trim>
+@Entity
+public class Client {
+    @Id
+    private Long id;
+    private String email;
+    private String motDePasse;
+    @OneToMany(mappedBy = "client")
+    private List&lt;Commande&gt; commandes;
+}
+					</code></pre>
 					<ul>
-						<li>Éviter beaucoup de problème (Sérialisation cyclique, cacher des champs (Password...))</li>
-						<li>Maîtriser le schema</li>
-						<li>Versionner l'API</li>
-						<li>Utiliser un DTO</li>
+						<li class="fragment con">Le hash du mot de passe part dans le JSON</li>
+						<li class="fragment con">Client → commandes → client → commandes… : sérialisation sans fin</li>
+						<li class="fragment con">Renommer une colonne casse le front</li>
 					</ul>
+					<aside class="notes">Les trois problèmes arrivent pour de vrai. Le deuxième se termine en StackOverflowError ou en LazyInitializationException. Le troisième est le plus sournois : le schéma de la base devient le contrat de l'API.</aside>
+				</section>
+				<section>
+					<h2>La solution : un DTO</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|1|3-7">
+public record ClientDto(Long id, String email) {}
+
+@GetMapping("/clients/{id}")
+public ClientDto trouver(@PathVariable Long id) {
+    Client client = clientService.trouver(id);
+    return new ClientDto(client.getId(), client.getEmail());
+}
+					</code></pre>
+					<ul>
+						<li class="fragment pro">On choisit exactement ce qui sort</li>
+						<li class="fragment pro">On maîtrise le schéma, et on peut le versionner</li>
+					</ul>
+					<aside class="notes">DTO : Data Transfer Object. Un record suffit. La conversion peut aussi se faire avec MapStruct, mais à la main c'est très bien pour commencer.</aside>
 				</section>
 				<section>
 					<h2>Découper les ressources</h2>
-					<div>
-						<div>
-							<p>Objet exemple :</p>
-							<pre>
-								<code data-trim data-line-numbers data-noescape>
-										public class Animal{
-											private Long id;
-											private String nom;
-											private List&lt;Animal&gt; enfants;
-											private List&lt;Repas&gt; repas;
-											private Espece espece;
-										}
-								</code>
-							</pre>
-						</div>
-					</div>
+					<p>Un produit de FraisDirect</p>
+					<pre><code class="language-java" data-trim data-line-numbers="|4|5|6">
+public class Produit {
+    private Long id;
+    private String nom;
+    private Categorie categorie;
+    private List&lt;Produit&gt; similaires;
+    private List&lt;Avis&gt; avis;
+}
+					</code></pre>
+					<aside class="notes">Un petit objet (la catégorie), une liste d'objets du même type (les produits similaires), une liste qui peut devenir très longue (les avis). Que renvoyer sur GET /produits/12 ?</aside>
 				</section>
 				<section>
 					<h2>Mauvaise pratique</h2>
-					Get /animals/12
-					<pre>
-						<code data-trim data-line-numbers="1-14|4-9|10|11-13" data-noescape >
-							{
-								"id": "12",
-								"nom": "Paul",
-								"enfants" :[
-								  {
-									"id": "13", 
-									"nom": "Paul2"
-								  }
-								],
-								"repas": [],
-								"espece": {
-									"nom": "pingouin"
-								}
-							}
-						</code>
-					</pre>
+					<p><code>GET /produits/12</code></p>
+					<pre><code class="language-json" data-trim data-line-numbers="|4-6|7-9|10-13">
+{
+  "id": 12,
+  "nom": "Comté 18 mois",
+  "categorie": {
+    "nom": "Fromages"
+  },
+  "similaires": [
+    { "id": 13, "nom": "Comté 24 mois" }
+  ],
+  "avis": [
+    { "note": 5, "texte": "Délicieux" },
+    …
+  ]
+}
+					</code></pre>
+					<aside class="notes">Dérouler avec les fragments. La catégorie, ça va. Les produits similaires et les avis : le front qui veut juste afficher le nom télécharge 3 000 avis.</aside>
 				</section>
 				<section>
 					<h2>Bonne pratique</h2>
 					<div class="r-stack">
 						<div class="fragment fade-in-then-out">
-							<p>Get /animals/12</p>
-							<pre>
-								<code data-trim data-noescape>
-									{
-										"id": 12;
-										"nom": "Paul"
-										"espece": {
-											"nom": "pingouin"
-										}
-									}
-								</code>
-							</pre>
+							<p><code>GET /produits/12</code></p>
+							<pre><code class="language-json" data-trim>
+{
+  "id": 12,
+  "nom": "Comté 18 mois",
+  "categorie": {
+    "nom": "Fromages"
+  }
+}
+							</code></pre>
 						</div>
 						<div class="fragment fade-in-then-out">
-							<p>Get /animals?parent=12</p>
-							<pre>
-								<code data-trim data-noescape>
-									[
-										{
-											"id": 13;
-											"nom": "Paul2"                
-										}
-									]
-								</code>
-							</pre>
+							<p><code>GET /produits?similaireA=12</code></p>
+							<pre><code class="language-json" data-trim>
+[
+  { "id": 13, "nom": "Comté 24 mois" }
+]
+							</code></pre>
 						</div>
 						<div class="fragment fade-in-then-out">
-							<p>Get /repas?animal=12</p>
-							<pre>
-								<code data-trim  data-noescape>
-									[
-										{
-											"id": 13;
-											"nom": "Paul2"
-										}
-									]
-								</code>
-							</pre>
+							<p><code>GET /avis?produit=12</code></p>
+							<pre><code class="language-json" data-trim>
+[
+  { "note": 5, "texte": "Délicieux" }
+]
+							</code></pre>
 						</div>
 					</div>
+					<aside class="notes">Une ressource par URL. Le petit objet reste dans le produit, les listes ont leur propre URL, avec filtre et pagination. Le front appelle ce dont il a besoin.</aside>
 				</section>
 				<section>
-					<h2>Utilisation des verbes</h2>
-					<ul>
-						<li>
-							Décrire une action : /fusees/12/launch
-						</li>
-						<li>
-							Éviter les :
-							<ul>
-								<li>init :  Le post suffit</li>
-								<li>search : Le get suffit </li>
-								<li>delete : le verbe http existe</li>
-							</ul>
-						</li>
-					</ul>
+					<h2>Les verbes HTTP</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Je veux</th>
+								<th>Appel</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Lire</td>
+								<td><code>GET /commandes/12</code></td>
+							</tr>
+							<tr>
+								<td>Chercher</td>
+								<td><code>GET /commandes?client=42</code></td>
+							</tr>
+							<tr>
+								<td>Créer</td>
+								<td><code>POST /commandes</code></td>
+							</tr>
+							<tr>
+								<td>Modifier</td>
+								<td><code>PUT /commandes/12</code></td>
+							</tr>
+							<tr>
+								<td>Supprimer</td>
+								<td><code>DELETE /commandes/12</code></td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">L'URL désigne la ressource, le verbe dit ce qu'on en fait.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="supprimer-fusee">
-					<h4>Quel appel pour supprimer la fusée 12 ?</h4>
-					<ul style="list-style: none;">
-						<li><strong>A.</strong> <code>POST /fusees/12/delete</code></li>
-						<li><strong>B.</strong> <code>DELETE /fusees/12</code></li>
-						<li><strong>C.</strong> <code>GET /fusees/delete?id=12</code></li>
-						<li><strong>D.</strong> <code>POST /fusees/delete/12</code></li>
+				<section>
+					<h2>Les verbes dans l'URL</h2>
+					<ul>
+						<li class="fragment pro">Pour une action métier : <code>POST /commandes/12/annuler</code></li>
+						<li class="fragment con"><code>/init</code> : le <code>POST</code> suffit</li>
+						<li class="fragment con"><code>/search</code> : le <code>GET</code> suffit</li>
+						<li class="fragment con"><code>/delete</code> : le verbe HTTP existe</li>
 					</ul>
+					<aside class="notes">Annuler une commande, ce n'est pas la supprimer : on la garde, on change son état, on rembourse. C'est une action métier, un verbe dans l'URL est justifié. Pour le reste, les verbes HTTP suffisent.</aside>
+				</section>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="supprimer-produit">
+					<h4>Quel appel pour supprimer le produit 12 ?</h4>
+					<ul>
+						<li><strong>A.</strong> <code>POST /produits/12/delete</code></li>
+						<li><strong>B.</strong> <code>DELETE /produits/12</code></li>
+						<li><strong>C.</strong> <code>GET /produits/delete?id=12</code></li>
+						<li><strong>D.</strong> <code>POST /produits/delete/12</code></li>
+					</ul>
+					<aside class="notes">Réponse B. La C est la pire : un GET ne doit jamais modifier quoi que ce soit, un robot d'indexation ou un préchargement du navigateur pourrait supprimer le produit.</aside>
+				</section>
+				<section class="retenir">
+					<h2>À retenir</h2>
+					<ul>
+						<li>Jamais d'entité dans un contrôleur : un DTO</li>
+						<li>Une ressource par URL, les listes à part</li>
+						<li>Le verbe HTTP dit l'action, sauf pour une action métier</li>
+					</ul>
+					<aside class="notes">Le DTO est aussi une question de sécurité : c'est lui qui garantit que le mot de passe ne sort pas.</aside>
 				</section>
 			</section>
+
+			<!-- Acte 3 : ranger ses packages -->
 			<section>
-				<section>
-					<section>
-						<h1>Bonne pratique : organiser son code</h1>
-					</section>
-				</section>
-
-				<section>
-					<h2>Ranger les packages : 1 Niveaux</h2>
-					<figure>
-						<pre>
-						app/
-						|- config/
-						|- controller/
-						|- repository/
-						|- service/
-						|
-						</pre>
-					</figure>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 3</p>
+					<h1>Ranger ses packages</h1>
+					<p>Trouver le code sans le chercher</p>
+					<aside class="notes">Trois façons de ranger le même projet, de la plus courante à la plus utile.</aside>
 				</section>
 				<section>
-					<h2>Ranger les packages : Domaine</h2>
-					<pre>
-						app/
-						|- compta/
-						| |- config/
-						| |- controller/
-						| |- repository/
-						| |- service/
-						|
-						|- facture/
-						| |- config/
-						| |- controller/
-						| |- repository/
-						| |- service/
-					</pre>
-				</section>
-				<section>
-					<h1>Ranger les packages : Domaine</h1>
-					<ul>
-						<li>Regrouper les éléments par domaine fonctionnel</li>
-						<li>Facilite l'exploration du projet</li>
-					</ul>
-				</section>
-				<section>
-					<h2>Ranger les packages : En domain + identifier les entre sortie</h2>
-					<pre>
-						app/
-						|- compta/
-						| |- config/
-						| |- in/
-						| |	|- controller/
-						| | |- amqp/
-						| |- out/ 
-						| | |- repository/
-						| |- service/
-						|
-						|- facture/
-						| |- config/
-						| |- in/
-						| | |- controller/
-						| |- out/
-						| | |- repository/
-						| | |- compta/
-						| |- service/
-					</pre>
-				</section>
-				<section>
-					<h2>Ranger les packages : En domain + identifier les entre sortie</h2>
-					<div>
-						<ul>
-							<li>Identifier les dépendances</li>
-							<li>Faciliter les études d'impact</li>
-						</ul>
+					<h2>Rangement 1 · Par couche</h2>
+					<div class="colonnes">
+						<div>
+							<pre class="arbre">
+fraisdirect/
+├─ config/
+├─ controller/
+├─ repository/
+└─ service/</pre>
+						</div>
+						<div>
+							<ul>
+								<li class="fragment pro">Simple pour démarrer</li>
+								<li class="fragment con">80 classes dans <code>service/</code></li>
+								<li class="fragment con">Toucher aux commandes = ouvrir 4 dossiers</li>
+							</ul>
+						</div>
 					</div>
+					<aside class="notes">Le rangement de tous les tutoriels Spring. Très bien pour 10 classes, pénible à 200.</aside>
+				</section>
+				<section>
+					<h2>Rangement 2 · Par domaine</h2>
+					<div class="colonnes">
+						<div>
+							<pre class="arbre">
+fraisdirect/
+├─ catalogue/
+│  ├─ controller/
+│  ├─ repository/
+│  └─ service/
+├─ commande/
+│  ├─ controller/
+│  ├─ repository/
+│  └─ service/
+└─ livraison/
+   └─ …</pre>
+						</div>
+						<div>
+							<ul>
+								<li class="fragment pro">Les éléments sont regroupés par domaine fonctionnel</li>
+								<li class="fragment pro">On explore le projet par le métier</li>
+							</ul>
+						</div>
+					</div>
+					<aside class="notes">Un nouveau développeur qui doit corriger un bug sur les commandes sait où aller. Et un domaine qui grossit peut devenir une application séparée plus facilement.</aside>
+				</section>
+				<section>
+					<h2>Rangement 3 · Domaine, entrées et sorties</h2>
+					<div class="colonnes">
+						<div>
+							<pre class="arbre">
+commande/
+├─ config/
+├─ in/
+│  ├─ controller/
+│  └─ amqp/
+├─ out/
+│  ├─ repository/
+│  └─ paiement/
+└─ service/</pre>
+						</div>
+						<div>
+							<ul>
+								<li class="fragment"><code>in/</code> : ce qui appelle le domaine (HTTP, messages)</li>
+								<li class="fragment"><code>out/</code> : ce que le domaine appelle (base, API externes)</li>
+								<li class="fragment pro">Les dépendances se voient</li>
+								<li class="fragment pro">Les études d'impact sont plus faciles</li>
+							</ul>
+						</div>
+					</div>
+					<aside class="notes">Question d'étude d'impact : la banque change son API, qu'est-ce qui est touché ? Uniquement out/paiement. Le listener RabbitMQ du cours middleware irait dans in/amqp.</aside>
+				</section>
+				<section class="retenir">
+					<h2>À retenir</h2>
+					<ul>
+						<li>Ranger par domaine, pas par couche</li>
+						<li>Séparer ce qui entre et ce qui sort du domaine</li>
+						<li>Le but : trouver le code et mesurer l'impact d'un changement</li>
+					</ul>
+					<aside class="notes">Fin du cours. Les trois parties disent la même chose : du code découpé selon le métier est du code qu'on peut changer sans peur.</aside>
 				</section>
 			</section>
-
 		</div>
 	</div>
 
@@ -439,12 +602,62 @@
 		// More info about initialization & config:
 		// - https://revealjs.com/initialization/
 		// - https://revealjs.com/config/
+		// Mermaid donne les mêmes id aux pointes de flèche de tous les schémas : le
+		// navigateur prend celles du premier, sur une slide masquée, et les flèches
+		// perdent leur pointe. On rend ces id uniques, schéma par schéma.
+		function fixMermaidMarkers() {
+			document.querySelectorAll('.mermaid svg:not([data-markers-fixed])').forEach(svg => {
+				svg.querySelectorAll('marker').forEach(marker => {
+					marker.id = svg.id + '-' + marker.id;
+				});
+				svg.querySelectorAll('[marker-start], [marker-end]').forEach(el => {
+					['marker-start', 'marker-end'].forEach(attr => {
+						const value = el.getAttribute(attr);
+						if (value) el.setAttribute(attr, value.replace('url(#', 'url(#' + svg.id + '-'));
+					});
+				});
+				svg.setAttribute('data-markers-fixed', '');
+			});
+		}
+		// Les schémas sont insérés de façon asynchrone, y compris en mode impression
+		new MutationObserver(fixMermaidMarkers)
+			.observe(document.querySelector('.reveal .slides'), { childList: true, subtree: true });
+
 		Reveal.initialize({
 			hash: true,
+			// Couleurs des schémas, accordées à css/cours.css
 			mermaid: {
-				// flowchart: {
-				//   curve: 'linear',
-				// },
+				theme: 'base',
+				themeVariables: {
+					darkMode: true,
+					fontFamily: 'Source Sans Pro, Helvetica, sans-serif',
+					fontSize: '22px',
+					background: '#0f1724',
+					primaryColor: '#1b2a45',
+					primaryTextColor: '#e8eef7',
+					primaryBorderColor: '#4ade80',
+					secondaryColor: '#22304d',
+					tertiaryColor: '#18233a',
+					lineColor: '#7dd3fc',
+					textColor: '#e8eef7',
+					edgeLabelBackground: '#0f1724',
+					actorBkg: '#1b2a45',
+					actorBorder: '#4ade80',
+					actorTextColor: '#e8eef7',
+					actorLineColor: '#475569',
+					signalColor: '#7dd3fc',
+					signalTextColor: '#e8eef7',
+					noteBkgColor: '#3a2f14',
+					noteTextColor: '#fde68a',
+					noteBorderColor: '#f59e0b',
+					labelBoxBkgColor: '#22304d',
+					labelBoxBorderColor: '#4ade80',
+					labelTextColor: '#e8eef7',
+					loopTextColor: '#e8eef7'
+				},
+				flowchart: { curve: 'basis', padding: 16 },
+				fontSize: 22,
+				sequence: { mirrorActors: false, width: 130, actorMargin: 40 }
 			},
 			// Learn about plugins: https://revealjs.com/plugins/
 			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMermaid]

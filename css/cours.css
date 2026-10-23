@@ -1,5 +1,5 @@
 /*
- * Style des cours (tests, middleware, sécurité), chargé après dist/theme/black.css.
+ * Style des cours (tests, bonnes pratiques, middleware, sécurité), chargé après dist/theme/black.css.
  * Palette « FraisDirect » : bleu nuit, vert frais, tomate pour les pannes.
  */
 :root {
@@ -573,4 +573,18 @@
 .reveal .cycle .fleche {
 	color: var(--fd-sky);
 	font-size: 1.6em;
+}
+
+/* Arborescence de dossiers */
+.reveal pre.arbre {
+	width: auto;
+	margin: 0;
+	padding: 0.8em 1.2em;
+	border-radius: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.07);
+	background: #0b1220;
+	color: var(--fd-sky);
+	font-size: 0.75em;
+	line-height: 1.4;
+	text-align: left;
 }
