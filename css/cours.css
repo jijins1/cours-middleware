@@ -1,5 +1,5 @@
 /*
- * Style des cours (middleware, sécurité), chargé après dist/theme/black.css.
+ * Style des cours (tests, middleware, sécurité), chargé après dist/theme/black.css.
  * Palette « FraisDirect » : bleu nuit, vert frais, tomate pour les pannes.
  */
 :root {
@@ -318,4 +318,259 @@
 /* Les parties d'un hash BCrypt */
 .reveal .hash-part {
 	color: var(--fd-accent-light);
+}
+
+/* Images et GIF */
+.reveal img.photo {
+	max-height: 520px;
+	border-radius: 14px;
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* Deux colonnes côte à côte */
+.reveal .colonnes {
+	display: flex;
+	width: 100%;
+	gap: 1.5em;
+	justify-content: center;
+	align-items: flex-start;
+	text-align: left;
+}
+
+.reveal .colonnes > div {
+	flex: 1;
+	font-size: 0.8em;
+	padding: 0.4em 0.9em;
+	border-radius: 14px;
+	background: var(--fd-surface);
+}
+
+.reveal .colonnes h3 {
+	color: var(--fd-sky);
+	font-size: 0.9em;
+	text-transform: none;
+}
+
+.reveal .colonnes p {
+	font-size: 0.75em;
+}
+
+/* Résultat d'une exécution de tests */
+.reveal .resultat {
+	width: max-content;
+	max-width: 92%;
+	margin: 0.6em auto;
+	padding: 0.4em 1em;
+	border-radius: 12px;
+	font-family: var(--r-code-font);
+	font-size: 0.6em;
+	text-align: left;
+}
+
+.reveal .resultat.rouge {
+	border-left: 6px solid var(--fd-tomato);
+	background: rgba(248, 113, 113, 0.12);
+	color: #fecaca;
+}
+
+.reveal .resultat.vert {
+	border-left: 6px solid var(--fd-accent);
+	background: rgba(74, 222, 128, 0.12);
+	color: #bbf7d0;
+}
+
+.reveal .resultat small {
+	font-size: 0.85em;
+	color: inherit;
+	opacity: 0.8;
+}
+
+/* La pyramide des tests */
+.reveal .pyramide {
+	display: flex;
+	gap: 1.2em;
+	justify-content: center;
+	align-items: stretch;
+}
+
+.reveal .pyramide .etages {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25em;
+	width: 60%;
+}
+
+.reveal .pyramide .etage {
+	padding: 0.35em 0;
+	border-radius: 10px;
+	font-weight: 700;
+	text-align: center;
+}
+
+.reveal .pyramide .manuel {
+	width: 40%;
+	background: #3b1418;
+	border: 2px solid var(--fd-tomato);
+	color: #fecaca;
+}
+
+.reveal .pyramide .e2e {
+	width: 52%;
+	background: #3a2f14;
+	border: 2px solid var(--fd-warm);
+	color: var(--fd-warm);
+}
+
+.reveal .pyramide .integration {
+	width: 72%;
+	background: #0c2338;
+	border: 2px solid var(--fd-sky);
+	color: #bae6fd;
+}
+
+.reveal .pyramide .unitaire {
+	width: 92%;
+	background: #0f2e1c;
+	border: 2px solid var(--fd-accent);
+	color: #bbf7d0;
+}
+
+.reveal .pyramide .echelle {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding-left: 0.8em;
+	border-left: 6px solid;
+	border-image: linear-gradient(var(--fd-tomato), var(--fd-accent)) 1;
+	color: var(--fd-muted);
+	font-size: 0.55em;
+	text-align: left;
+}
+
+/* Frise du temps passé sur une fonctionnalité, à la même échelle d'une slide à l'autre */
+.reveal .frise {
+	--unites: 21;
+	margin: 0.6em 0;
+}
+
+.reveal .frise .ligne {
+	display: flex;
+	align-items: center;
+	margin: 0.3em 0;
+}
+
+.reveal .frise .nom {
+	width: 6.5em;
+	flex-shrink: 0;
+	font-size: 0.6em;
+	text-align: right;
+	padding-right: 0.8em;
+}
+
+.reveal .frise .barre {
+	display: flex;
+	flex: 1;
+	height: 1.1em;
+}
+
+.reveal .frise .barre i {
+	display: block;
+	width: calc(var(--n) * 100% / var(--unites));
+	height: 100%;
+}
+
+.reveal .frise .repete {
+	display: flex;
+	width: calc(var(--n) * 100% / var(--unites));
+	height: 100%;
+	outline: 3px solid #ffffff;
+	outline-offset: -3px;
+}
+
+.reveal .frise .repete i {
+	flex: var(--n);
+	width: auto;
+}
+
+.reveal .frise i.dev,
+.reveal .legende i.dev {
+	background: var(--fd-accent);
+}
+
+.reveal .frise i.ecriture,
+.reveal .legende i.ecriture {
+	background: var(--fd-sky);
+}
+
+.reveal .frise i.manuel,
+.reveal .legende i.manuel {
+	background: var(--fd-warm);
+}
+
+.reveal .frise i.bug,
+.reveal .legende i.bug {
+	background: var(--fd-tomato);
+}
+
+.reveal .legende {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.4em 1.2em;
+	font-size: 0.5em;
+	color: var(--fd-muted);
+}
+
+.reveal .legende i {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	margin-right: 0.4em;
+	vertical-align: -0.15em;
+	border-radius: 3px;
+}
+
+.reveal .legende i.repete-cle {
+	border: 3px solid #ffffff;
+}
+
+/* Le cycle du TDD */
+.reveal .cycle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	margin: 0.4em 0 0.8em;
+	font-size: 0.6em;
+}
+
+.reveal .cycle .etape {
+	padding: 0.5em 0.9em;
+	border-radius: 12px;
+	border: 2px solid;
+	font-weight: 700;
+}
+
+.reveal .cycle .rouge {
+	background: #3b1418;
+	border-color: var(--fd-tomato);
+	color: #fecaca;
+}
+
+.reveal .cycle .vert {
+	background: #0f2e1c;
+	border-color: var(--fd-accent);
+	color: #bbf7d0;
+}
+
+.reveal .cycle .bleu {
+	background: #0c2338;
+	border-color: var(--fd-sky);
+	color: #bae6fd;
+}
+
+.reveal .cycle .fleche {
+	color: var(--fd-sky);
+	font-size: 1.6em;
 }

@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-	<title>reveal.js</title>
+	<title>Tester une application</title>
 
 	<link rel="stylesheet" href="dist/reset.css">
 	<link rel="stylesheet" href="dist/reveal.css">
@@ -13,302 +13,1012 @@
 
 	<!-- Theme used for syntax highlighted code -->
 	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	<link rel="stylesheet" href="css/cours.css">
 </head>
 
 <body>
 	<div class="reveal">
 		<div class="slides">
+			<section data-ak-join>
+				<h2>Rejoignez la séance</h2>
+				<p>Scannez le QR code ou entrez le code sur votre téléphone.</p>
+			</section>
+
+			<!-- Introduction : le fil rouge et pourquoi tester -->
 			<section>
-				<section>
-					<section>
-						<h1>Tester une application</h1>
-					</section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Cours</p>
+					<h1>Tester une application</h1>
+					<p>Du test unitaire au test end-to-end</p>
+					<aside class="notes">Premier cours de la série. On y présente FraisDirect, l'application fictive qu'on retrouvera dans les cours middleware et sécurité. Les étudiants connaissent déjà JUnit : on ne réexplique pas la syntaxe, on se concentre sur quoi tester, quand, et avec quel outil.</aside>
 				</section>
 				<section>
-					<h1>Pourquoi tester ?</h1>
-					<img src="assets/douter.jpg" alt="Image illustrant le concept de pourquoi tester">
-				</section>
-				<section>
-					<h1>Pourquoi tester ?</h1>
-					<ul>
-						<li>Vérifier qu'il n'y a pas de régression</li>
-						<li>Vérifier que les nouvelles fonctionnalités fonctionnent</li>
-					</ul>
-				</section>
-				<section>
-					<h1>Comment tester ?</h1>
-					<img src="assets/test-pira.jpg" alt="Schéma représentant comment tester" />
-				</section>
-				<section>
-					<h1>Quand tester ?</h1>
-					<div class="r-stack">
-						<img class="fragment" src="assets/test-1-iteration-legend.jpg" alt="Légende de la première itération de test"/>
-						<img class="fragment" src="assets/test-1-iteration.png" alt="Image de la première itération de test"/>
-						<img class="fragment" src="assets/test-3-iteration.png" alt="Image de la troisième itération de test"/>
+					<h2>FraisDirect</h2>
+					<p>Une épicerie en ligne qui livre des produits frais</p>
+					<div class="mermaid">
+						<pre>
+							graph LR
+							User[Client] --> App[Application Spring Boot]
+							App --> PG[(PostgreSQL)]
+						</pre>
 					</div>
+					<p class="fragment">On va la faire grandir dans les prochains cours. Aujourd'hui : s'assurer qu'elle marche.</p>
+					<aside class="notes">Le fil rouge de tous les cours. Ici, elle est encore petite : une application, une base. Le cours middleware la fera grandir, le cours sécurité lui ajoutera des comptes.</aside>
+				</section>
+				<section>
+					<h2>Une règle métier</h2>
+					<p>La livraison coûte <strong>4,90 €</strong></p>
+					<p>Elle est <strong>offerte dès 50 €</strong> d'achat</p>
+					<aside class="notes">La règle qui va servir d'exemple pour tout le début du cours. Elle a l'air triviale, c'est voulu : même une règle de deux lignes cache un cas limite, on le verra en TDD.</aside>
+				</section>
+				<section>
+					<h2>Un lundi matin</h2>
+					<ol>
+						<li class="fragment">Un développeur modifie le calcul des promotions</li>
+						<li class="fragment">Il teste sa promotion à la main : elle marche</li>
+						<li class="fragment">Il met en production</li>
+						<li class="fragment">La livraison redevient payante pour tout le monde</li>
+						<li class="fragment">On l'apprend une semaine plus tard, par les avis clients</li>
+					</ol>
+					<aside class="notes">Demander à la salle : qu'est-ce qui a manqué ? Il a testé ce qu'il a modifié, pas ce qui marchait déjà. C'est la définition d'une régression.</aside>
+				</section>
+				<section>
+					<h2>Pourquoi tester ?</h2>
+					<img class="photo" src="assets/douter.jpg" alt="Image illustrant le doute">
+					<aside class="notes">Laisser l'image quelques secondes, puis passer à la réponse.</aside>
+				</section>
+				<section>
+					<h2>Pourquoi tester ?</h2>
+					<ul>
+						<li class="fragment">Vérifier que les nouvelles fonctionnalités fonctionnent</li>
+						<li class="fragment">Vérifier qu'il n'y a pas de <strong>régression</strong> : ce qui marchait marche toujours</li>
+					</ul>
+					<aside class="notes">Le deuxième point est le plus important et le plus oublié. Une fonctionnalité, on la teste au moins une fois à la main. Ce qui marchait déjà, personne ne le reteste.</aside>
+				</section>
+				<section>
+					<h2>Au programme</h2>
+					<ol>
+						<li>Quand écrire ses tests : le <strong>TDD</strong></li>
+						<li>Tester une classe seule : <strong>tests unitaires</strong>, mocks et fakes</li>
+						<li>Tester avec le framework et la base : <strong>tests d'intégration</strong></li>
+						<li>Tester comme un utilisateur : <strong>tests end-to-end</strong></li>
+					</ol>
+					<aside class="notes">Les trois derniers points sont les trois étages de la pyramide qu'on va voir juste après.</aside>
+				</section>
+				<section>
+					<h2>Comment tester ?</h2>
+					<div class="pyramide">
+						<div class="etages">
+							<div class="etage manuel">Tests manuels</div>
+							<div class="etage e2e">End-to-end</div>
+							<div class="etage integration">Intégration</div>
+							<div class="etage unitaire">Unitaires</div>
+						</div>
+						<div class="echelle">
+							<span>Lent, cher<br>peu nombreux</span>
+							<span>Rapide, pas cher<br>très nombreux</span>
+						</div>
+					</div>
+					<aside class="notes">Plus on monte, plus un test vérifie de choses d'un coup, mais plus il est lent à écrire, à exécuter et à réparer. D'où la forme : beaucoup de tests unitaires en bas, quelques tests end-to-end en haut. Les tests manuels ne disparaissent pas, ils deviennent rares.</aside>
+				</section>
+				<section>
+					<h2>Pourquoi on gagne du temps</h2>
+					<div class="colonnes">
+						<div>
+							<h3>À la main</h3>
+							<ol>
+								<li>Démarrer l'application</li>
+								<li>Préparer les données</li>
+								<li>Remplir un panier à 49,99 €</li>
+								<li>Lire les frais de livraison</li>
+								<li>Recommencer à 50 €, à 60 €…</li>
+							</ol>
+						</div>
+						<div class="fragment">
+							<h3>Avec des tests</h3>
+							<ol>
+								<li>Lancer les tests</li>
+							</ol>
+							<p>Quelques secondes, tous les cas d'un coup, à chaque modification.</p>
+						</div>
+					</div>
+					<aside class="notes">Demander combien de temps prend la colonne de gauche : quelques minutes. Et on la refait à chaque modification, donc en pratique on ne la refait pas. C'est comme ça qu'arrivent les régressions du lundi matin.</aside>
+				</section>
+				<section>
+					<h2>Quand écrire ses tests ?</h2>
+					<p>Une fonctionnalité, un bug</p>
+					<div class="frise">
+						<div class="ligne">
+							<span class="nom">À la fin</span>
+							<div class="barre">
+								<i class="dev" style="--n:5"></i>
+								<span class="repete" style="--n:4"><i class="manuel" style="--n:3"></i><i class="bug" style="--n:1"></i></span>
+								<i class="manuel" style="--n:3"></i>
+								<i class="ecriture" style="--n:1"></i>
+							</div>
+						</div>
+						<div class="ligne fragment">
+							<span class="nom">Au premier bug</span>
+							<div class="barre">
+								<i class="dev" style="--n:5"></i>
+								<i class="manuel" style="--n:3"></i>
+								<i class="ecriture" style="--n:1"></i>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<i class="manuel" style="--n:3"></i>
+							</div>
+						</div>
+						<div class="ligne fragment">
+							<span class="nom">Avant le dev</span>
+							<div class="barre">
+								<i class="ecriture" style="--n:1"></i>
+								<i class="dev" style="--n:5"></i>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<i class="manuel" style="--n:3"></i>
+							</div>
+						</div>
+					</div>
+					<div class="legende">
+						<span><i class="dev"></i>Développement</span>
+						<span><i class="ecriture"></i>Écriture d'un test</span>
+						<span><i class="manuel"></i>Test manuel</span>
+						<span><i class="bug"></i>Correction de bug</span>
+						<span><i class="repete-cle"></i>À répéter à chaque bug</span>
+					</div>
+					<aside class="notes">Lire ligne par ligne. Tests à la fin : chaque bug coûte une correction plus un test manuel complet. Au premier bug : on écrit le test à ce moment-là, ensuite le bug ne coûte plus que sa correction. Avant le dev : le test est déjà là, on ne fait le test manuel qu'une fois, à la fin. Pour un seul bug, les trois se valent à peu près.</aside>
+				</section>
+				<section>
+					<h2>Et si le bug revient trois fois ?</h2>
+					<div class="frise">
+						<div class="ligne">
+							<span class="nom">À la fin</span>
+							<div class="barre">
+								<i class="dev" style="--n:5"></i>
+								<span class="repete" style="--n:4"><i class="manuel" style="--n:3"></i><i class="bug" style="--n:1"></i></span>
+								<span class="repete" style="--n:4"><i class="manuel" style="--n:3"></i><i class="bug" style="--n:1"></i></span>
+								<span class="repete" style="--n:4"><i class="manuel" style="--n:3"></i><i class="bug" style="--n:1"></i></span>
+								<i class="manuel" style="--n:3"></i>
+								<i class="ecriture" style="--n:1"></i>
+							</div>
+						</div>
+						<div class="ligne">
+							<span class="nom">Au premier bug</span>
+							<div class="barre">
+								<i class="dev" style="--n:5"></i>
+								<i class="manuel" style="--n:3"></i>
+								<i class="ecriture" style="--n:1"></i>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<i class="manuel" style="--n:3"></i>
+							</div>
+						</div>
+						<div class="ligne">
+							<span class="nom">Avant le dev</span>
+							<div class="barre">
+								<i class="ecriture" style="--n:1"></i>
+								<i class="dev" style="--n:5"></i>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<span class="repete" style="--n:1"><i class="bug" style="--n:1"></i></span>
+								<i class="manuel" style="--n:3"></i>
+							</div>
+						</div>
+					</div>
+					<div class="legende">
+						<span><i class="dev"></i>Développement</span>
+						<span><i class="ecriture"></i>Écriture d'un test</span>
+						<span><i class="manuel"></i>Test manuel</span>
+						<span><i class="bug"></i>Correction de bug</span>
+						<span><i class="repete-cle"></i>À répéter à chaque bug</span>
+					</div>
+					<aside class="notes">Les deux schémas sont à la même échelle. Avec les tests à la fin, chaque bug refait payer un test manuel complet. Avec le test écrit avant, un bug ne coûte que sa correction : le test dit tout de suite si c'est réparé. C'est l'argument du TDD, qui arrive juste après.</aside>
 				</section>
 			</section>
+
+			<!-- Acte 1 : TDD -->
 			<section>
-				<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 1</p>
 					<h1>TDD</h1>
+					<p>Test Driven Development : le test d'abord</p>
+					<aside class="notes">On déroule le TDD sur la règle de la livraison, en trois tours. Prendre le temps sur chaque tour : c'est le rythme qu'il faut faire sentir, pas le code, qui est trivial.</aside>
 				</section>
 				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="tdd-etape-1">
 					<h4>En TDD, par quoi commence-t-on ?</h4>
-					<ul style="list-style: none;">
+					<ul>
 						<li><strong>A.</strong> Écrire le code de la fonctionnalité</li>
 						<li><strong>B.</strong> Écrire un test qui échoue</li>
 						<li><strong>C.</strong> Refactorer le code existant</li>
 					</ul>
-				</section>
-				<section> 
-					<h2>C'est quoi TDD</h2>
-					<img src="assets/tdd.webp" alt="Image représentant le développement dirigé par les tests">
+					<aside class="notes">Réponse B. Poser la question avant d'expliquer : beaucoup répondent A, et c'est justement ce que le TDD inverse.</aside>
 				</section>
 				<section>
-					<h2>Pourquoi ?</h2>
+					<h2>Le cycle</h2>
+					<div class="cycle">
+						<span class="etape rouge">1. Écrire un test qui échoue</span>
+						<span class="fleche">→</span>
+						<span class="etape vert">2. Le faire passer, au plus simple</span>
+						<span class="fleche">→</span>
+						<span class="etape bleu">3. Refactorer sans rien casser</span>
+						<span class="fleche">↺</span>
+					</div>
 					<ul>
-						<li>Réduire le temps de dev</li>
-						<li>Faire des tests de qualité</li>
+						<li class="fragment"><strong>Rouge</strong> : le test échoue, il décrit ce qu'on veut</li>
+						<li class="fragment"><strong>Vert</strong> : le minimum de code pour qu'il passe</li>
+						<li class="fragment"><strong>Refactor</strong> : on nettoie, les tests protègent</li>
 					</ul>
+					<aside class="notes">Insister sur « le minimum ». Les étudiants voudront écrire toute la règle d'un coup. Le TDD, c'est des petits pas : chaque test ajoute une seule exigence.</aside>
 				</section>
 				<section>
-					<h2>Pourquoi on gagne du temps</h2>
-				</section>
-				<section>
-					<h2>À la main</h2>
-					<ul>
-						<li>Démarrer l'appli </li>
-						<li>Préparer / reset les données</li>
-						<li>Vérifier le résultat</li>
-					</ul>
-				</section>
-				<section>
-					<h2>Avec des Tests</h2>
-					<ul>
-						<li>Lancer le test</li>
-					</ul>
-				</section>
-				<section>
-					<h2>Mon (vrai) avis sur le tdd</h2>
-					<ul>
-						<li>Essentiel pour le débogage</li>
-						<li>Pratique pour des POC techniques</li>
-					        <li>Compliqué pour réfléchir à une architecture</li>
-					</ul>
-				</section>
+					<h2>Tour 1 · Rouge</h2>
+					<p>Un panier de 30 € paie la livraison</p>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|5-6|8|10">
+class FraisLivraisonTest {
 
-			</section>
-			<section>
-				<section>
-					<h1>Les tests unitaires</h1>
-					<ul>
-						Objectif :
-						<li>Tester une classe</li>
-						<li>Mocker les dépendances</li>
-					</ul>
+    @Test
+    void unPanierDe30EurosPaieLaLivraison() {
+        // Given : les montants sont en centimes
+        long totalPanier = 3000;
+        // When
+        long frais = new FraisLivraison().calculer(totalPanier);
+        // Then
+        assertEquals(490, frais);
+    }
+}
+					</code></pre>
+					<aside class="notes">Rappel JUnit au passage : Given / When / Then, un nom de test qui se lit comme une phrase. Les montants sont en centimes pour éviter les erreurs d'arrondi des double. La classe FraisLivraison n'existe pas encore : le test ne compile même pas. C'est rouge.</aside>
 				</section>
 				<section>
-					<h1>C'est quoi un mock ? </h1>
-					<ul>
-						<li>Le mock est un "faux" objet</li>
-						<li>On décrit les retours de chaque méthode</li>
-						<iframe src="https://giphy.com/embed/3o84U6421OOWegpQhq" width="480" height="270"
-							frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
-						<p><a href="https://giphy.com/gifs/tipsyelves-rainbow-magic-3o84U6421OOWegpQhq"></a></p>
-					</ul>
+					<h2>Tour 1 · Rouge</h2>
+					<p>On crée la classe, juste pour que ça compile</p>
+					<pre><code class="language-java" data-trim>
+class FraisLivraison {
+    long calculer(long totalPanier) {
+        return 0;
+    }
+}
+					</code></pre>
+					<p class="resultat rouge fragment">✗ unPanierDe30EurosPaieLaLivraison<br><small>expected: &lt;490&gt; but was: &lt;0&gt;</small></p>
+					<aside class="notes">On lance le test et on le voit échouer, pour la bonne raison. Un test qu'on n'a jamais vu rouge peut très bien ne rien tester.</aside>
 				</section>
 				<section>
-					<h1>Exemple de Mock avec Mockito</h1>
-					<pre><code class="hljs language-java">@InjectMocks
-private Calculator calculator;
-
-@Mock
-private AdditionService additionService;
-
-// Exemple d'utilisation
+					<h2>Tour 1 · Vert</h2>
+					<p>Le minimum pour passer au vert</p>
+					<pre><code class="language-java" data-trim data-line-numbers="3">
+class FraisLivraison {
+    long calculer(long totalPanier) {
+        return 490;
+    }
+}
+					</code></pre>
+					<p class="resultat vert fragment">✓ unPanierDe30EurosPaieLaLivraison</p>
+					<aside class="notes">Les étudiants vont trouver ça ridicule, et c'est le but de la discussion : rien dans les tests ne demande autre chose pour l'instant. C'est le test suivant qui va forcer la vraie règle.</aside>
+				</section>
+				<section>
+					<h2>Tour 2 · Rouge</h2>
+					<p>Un panier de 60 € a la livraison offerte</p>
+					<pre><code class="language-java" data-trim>
 @Test
-public void testAdd() {
-    Mockito.when(additionService.add(2, 3)).thenReturn(5);
-    int result = calculator.calculate(2, 3);
-    assertEquals(5, result);
-    Mockito.verify(additionService).add(2, 3);
-}</code></pre>
+void unPanierDe60EurosALaLivraisonOfferte() {
+    long frais = new FraisLivraison().calculer(6000);
+
+    assertEquals(0, frais);
+}
+					</code></pre>
+					<p class="resultat rouge fragment">✗ unPanierDe60EurosALaLivraisonOfferte<br><small>expected: &lt;0&gt; but was: &lt;490&gt;</small></p>
+					<aside class="notes">Le nouveau test échoue, le premier passe toujours.</aside>
 				</section>
-				<section data-ak-question="code" data-ak-language="java" data-ak-id="test-mockito">
-					<h4>À vous : testez <code>product(4, 5)</code></h4>
-					<p>Simulez <code>multiply</code>, vérifiez le résultat et l'appel au service.</p>
+				<section>
+					<h2>Tour 2 · Vert</h2>
+					<pre><code class="language-java" data-trim data-line-numbers="3-5">
+class FraisLivraison {
+    long calculer(long totalPanier) {
+        if (totalPanier &gt; 5000) {
+            return 0;
+        }
+        return 490;
+    }
+}
+					</code></pre>
+					<p class="resultat vert fragment">✓ unPanierDe30EurosPaieLaLivraison<br>✓ unPanierDe60EurosALaLivraisonOfferte</p>
+					<aside class="notes">Ne pas relever le &gt; tout de suite : la question qui suit le fait.</aside>
+				</section>
+				<section data-ak-question="yesno" data-ak-id="panier-50-euros">
+					<h4>Avec ce code, un panier de pile 50 € a-t-il la livraison offerte ?</h4>
+					<p><code>if (totalPanier &gt; 5000) return 0;</code></p>
+					<aside class="notes">Réponse : non. La règle dit « dès 50 € », donc 50 € compris. Les deux tests sont verts et pourtant le code est faux : aucun test ne regarde la limite. Les valeurs limites sont là où se cachent les bugs.</aside>
+				</section>
+				<section>
+					<h2>Tour 3 · Rouge</h2>
+					<p>On teste la limite</p>
+					<pre><code class="language-java" data-trim>
+@Test
+void unPanierDePile50EurosALaLivraisonOfferte() {
+    long frais = new FraisLivraison().calculer(5000);
+
+    assertEquals(0, frais);
+}
+					</code></pre>
+					<p class="resultat rouge fragment">✗ unPanierDePile50EurosALaLivraisonOfferte<br><small>expected: &lt;0&gt; but was: &lt;490&gt;</small></p>
+					<aside class="notes">Le bug est trouvé par un test, avant la production, et non par les avis clients.</aside>
+				</section>
+				<section>
+					<h2>Tour 3 · Vert</h2>
+					<pre><code class="language-java" data-trim data-line-numbers="3">
+class FraisLivraison {
+    long calculer(long totalPanier) {
+        if (totalPanier &gt;= 5000) {
+            return 0;
+        }
+        return 490;
+    }
+}
+					</code></pre>
+					<p class="resultat vert fragment">✓ unPanierDe30EurosPaieLaLivraison<br>✓ unPanierDe60EurosALaLivraisonOfferte<br>✓ unPanierDePile50EurosALaLivraisonOfferte</p>
+					<aside class="notes">Un seul caractère change. Les trois tests sont verts.</aside>
+				</section>
+				<section>
+					<h2>Refactor</h2>
+					<p>On donne un nom aux nombres magiques</p>
+					<pre><code class="language-java" data-trim data-line-numbers="2-3|6-9">
+class FraisLivraison {
+    static final long SEUIL_LIVRAISON_OFFERTE = 5000;
+    static final long FRAIS_LIVRAISON = 490;
+
+    long calculer(long totalPanier) {
+        if (totalPanier &gt;= SEUIL_LIVRAISON_OFFERTE) {
+            return 0;
+        }
+        return FRAIS_LIVRAISON;
+    }
+}
+					</code></pre>
+					<p class="resultat vert fragment">✓ 3 tests passent : le refactor n'a rien cassé</p>
+					<aside class="notes">C'est l'étape qu'on saute toujours, et c'est elle qui rend le code lisible. On peut la faire sans peur parce que les tests vérifient qu'on n'a rien cassé.</aside>
+				</section>
+				<section class="retenir">
+					<h2>Ce qu'on a gagné</h2>
+					<ul>
+						<li>La règle est écrite trois fois, dont deux en langage clair : les noms des tests</li>
+						<li>Le cas limite a été trouvé avant la production</li>
+						<li>Le prochain qui touche à ce code saura tout de suite s'il casse la règle</li>
+					</ul>
+					<aside class="notes">Revenir à l'histoire du lundi matin : avec ces trois tests, le développeur des promotions aurait vu un test rouge avant de mettre en production.</aside>
+				</section>
+				<section>
+					<h2>Mon (vrai) avis sur le TDD</h2>
+					<ul>
+						<li class="pro">Essentiel pour le débogage</li>
+						<li class="pro">Pratique pour des POC techniques</li>
+						<li class="con">Compliqué pour réfléchir à une architecture</li>
+					</ul>
+					<aside class="notes">Pour corriger un bug, écrire d'abord le test qui le reproduit est presque toujours le bon réflexe. Pour concevoir une architecture qu'on ne connaît pas encore, écrire les tests d'abord est plus difficile : on ne sait pas encore quelles classes existeront.</aside>
+				</section>
+			</section>
+
+			<!-- Acte 2 : tests unitaires, mocks et fakes -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 2</p>
+					<h1>Les tests unitaires</h1>
+					<p>Tester une classe, et seulement elle</p>
+					<aside class="notes">FraisLivraison n'avait aucune dépendance, c'était facile. Une vraie classe métier appelle une base, d'autres services, des API externes. Comment la tester seule ?</aside>
+				</section>
+				<section>
+					<h2>Passer une commande</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|3-4|5-7|8-9">
+class CommandeService {
+    void passerCommande(Commande commande) {
+        String produit = commande.produit();
+        int disponible = stockRepository.quantiteDisponible(produit);
+        if (disponible &lt; commande.quantite()) {
+            throw new StockInsuffisantException(produit);
+        }
+        paiementClient.payer(commande.client(),
+                commande.montant());
+    }
+}
+					</code></pre>
+					<aside class="notes">La règle à tester : si le stock ne suffit pas, on refuse la commande et on ne débite pas le client. Lire le code ligne par ligne avec les fragments. StockRepository et PaiementClient sont injectés par le constructeur.</aside>
+				</section>
+				<section>
+					<h2>Le problème</h2>
+					<div class="mermaid">
+						<pre>
+							graph LR
+							S[CommandeService] --> R[StockRepository]
+							R --> DB[(PostgreSQL)]
+							S --> P[PaiementClient]
+							P --> B[Banque]
+						</pre>
+					</div>
+					<ul>
+						<li class="fragment">Il faut une base remplie avec le bon stock</li>
+						<li class="fragment">Il faut une banque… qui débite vraiment</li>
+						<li class="fragment">Et on veut juste tester un <code>if</code></li>
+					</ul>
+					<aside class="notes">Demander à la salle comment ils feraient. On veut tester la règle de CommandeService, pas PostgreSQL ni la banque.</aside>
+				</section>
+				<section>
+					<h2>La solution : des faux</h2>
+					<div class="mermaid">
+						<pre>
+							graph LR
+							S[CommandeService] --> R[Mock StockRepository]:::faux
+							S --> P[Mock PaiementClient]:::faux
+							classDef faux fill:#3a2f14,stroke:#fde68a,color:#fde68a,stroke-dasharray:6 4
+						</pre>
+					</div>
+					<ul>
+						<li class="fragment">Un <strong>mock</strong> est un faux objet</li>
+						<li class="fragment">On lui dit quoi répondre</li>
+						<li class="fragment">On vérifie ensuite comment il a été appelé</li>
+					</ul>
+					<aside class="notes">Le service ne voit pas la différence : il reçoit un objet qui implémente la même interface. C'est pour ça qu'on injecte les dépendances par le constructeur.</aside>
+				</section>
+				<section>
+					<h2>C'est quoi un mock ?</h2>
+					<img class="photo" src="assets/mock-magie.gif" alt="Un mock, c'est magique">
+					<aside class="notes">Pause détente avant les quatre étapes avec Mockito.</aside>
+				</section>
+				<section>
+					<h2>Étape 1 · Créer les faux</h2>
+					<pre><code class="language-java" data-trim data-line-numbers="|1|4-7|9-10">
+@ExtendWith(MockitoExtension.class)
+class CommandeServiceTest {
+
+    @Mock
+    private StockRepository stockRepository;
+    @Mock
+    private PaiementClient paiementClient;
+
+    @InjectMocks
+    private CommandeService commandeService;
+}
+					</code></pre>
+					<ul>
+						<li class="fragment"><code>@Mock</code> crée un faux qui ne fait rien</li>
+						<li class="fragment"><code>@InjectMocks</code> crée le vrai service et lui donne les faux</li>
+					</ul>
+					<aside class="notes">Piège classique : sans @ExtendWith(MockitoExtension.class), les annotations sont ignorées, les champs restent null et le test plante avec une NullPointerException. Par défaut, un mock renvoie 0, null ou une liste vide.</aside>
+				</section>
+				<section>
+					<h2>Étape 2 · Programmer le faux</h2>
+					<pre class="long"><code class="language-java" data-trim>
+// Given : il ne reste que 2 tomates
+when(stockRepository.quantiteDisponible("tomate"))
+        .thenReturn(2);
+Commande commande = new Commande("alice", "tomate", 3, 1200);
+					</code></pre>
+					<p class="fragment">« Quand on te demande le stock de tomates, réponds 2. »</p>
+					<aside class="notes">Lire le when / thenReturn à voix haute comme une phrase. Alice commande 3 tomates pour 12 €, il n'en reste que 2.</aside>
+				</section>
+				<section>
+					<h2>Étape 3 · Vérifier le résultat</h2>
+					<pre class="long"><code class="language-java" data-trim>
+// When / Then : la commande est refusée
+assertThrows(StockInsuffisantException.class,
+        () -&gt; commandeService.passerCommande(commande));
+					</code></pre>
+					<p class="fragment">Le service a bien appelé le faux, reçu 2, et refusé.</p>
+					<aside class="notes">assertThrows exécute la lambda et vérifie qu'elle lève bien cette exception. Si elle n'en lève pas, le test échoue.</aside>
+				</section>
+				<section>
+					<h2>Étape 4 · Vérifier les appels</h2>
+					<pre class="long"><code class="language-java" data-trim>
+// Then : Alice n'a pas été débitée
+verify(paiementClient, never()).payer(any(), anyLong());
+					</code></pre>
+					<p class="fragment">Le résultat ne suffit pas : on vérifie aussi ce qui <strong>ne</strong> s'est <strong>pas</strong> passé.</p>
+					<aside class="notes">Si quelqu'un déplace l'appel à payer avant le contrôle du stock, l'exception est toujours levée, mais Alice est débitée. Seul ce verify le détecte.</aside>
+				</section>
+				<section>
+					<h2>Le test complet</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|3-5|7-8|10">
+@Test
+void refuseLaCommandeSiLeStockManque() {
+    when(stockRepository.quantiteDisponible("tomate"))
+            .thenReturn(2);
+    Commande commande = new Commande("alice", "tomate", 3, 1200);
+
+    assertThrows(StockInsuffisantException.class,
+            () -&gt; commandeService.passerCommande(commande));
+
+    verify(paiementClient, never()).payer(any(), anyLong());
+}
+					</code></pre>
+					<aside class="notes">Les trois blocs Given / When / Then restent visibles grâce aux lignes vides.</aside>
+				</section>
+				<section>
+					<h2>Le piège : tester le mock</h2>
+					<pre><code class="language-java" data-trim>
+when(additionService.add(2, 3)).thenReturn(5);
+
+assertEquals(5, calculator.calculate(2, 3));
+					</code></pre>
+					<ul>
+						<li class="fragment con"><code>calculate</code> ne fait que renvoyer ce que dit le service</li>
+						<li class="fragment con">On vérifie que le mock renvoie… ce qu'on lui a dit de renvoyer</li>
+						<li class="fragment pro">Un test unitaire vérifie une <strong>décision</strong> de la classe : un <code>if</code>, un calcul, un appel ou un non-appel</li>
+					</ul>
+					<aside class="notes">Ce test est toujours vert, quoi que fasse calculate tant qu'elle passe la main. Demander : quelle décision CommandeService prend-elle ? Refuser ou payer. C'est ça qu'on teste.</aside>
+				</section>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="mock-verifier-paiement">
+					<h4>Pour vérifier qu'Alice n'a pas été débitée, de quoi a-t-on besoin ?</h4>
+					<ul>
+						<li><strong>A.</strong> D'un compte de test à la banque</li>
+						<li><strong>B.</strong> D'un mock de <code>PaiementClient</code> et de <code>verify</code></li>
+						<li><strong>C.</strong> D'un <code>assertEquals</code> sur le retour de <code>passerCommande</code></li>
+					</ul>
+					<aside class="notes">Réponse B. C ne marche pas : passerCommande ne renvoie rien, l'effet est un appel à un autre objet. A : jamais de vrai service externe dans un test.</aside>
+				</section>
+				<section>
+					<h2>C'est quoi un fake ?</h2>
+					<ul>
+						<li>Une vraie implémentation, mais simplifiée</li>
+						<li>Exemple : un repository qui stocke dans une <code>Map</code></li>
+					</ul>
+					<pre class="long"><code class="language-java" data-trim>
+class StockRepositoryEnMemoire implements StockRepository {
+    private final Map&lt;String, Integer&gt; stock = new HashMap&lt;&gt;();
+
+    void ajouter(String produit, int quantite) {
+        stock.put(produit, quantite);
+    }
+
+    @Override
+    public int quantiteDisponible(String produit) {
+        return stock.getOrDefault(produit, 0);
+    }
+}
+					</code></pre>
+					<aside class="notes">Pas de Mockito : c'est une classe normale, écrite une fois et réutilisée dans tous les tests. Dans le test : stock.ajouter("tomate", 2), puis new CommandeService(stock, paiementClient).</aside>
+				</section>
+				<section>
+					<h2>Mock ou fake ?</h2>
+					<table>
+						<thead>
+							<tr>
+								<th></th>
+								<th>Mock</th>
+								<th>Fake</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Comment</td>
+								<td>Mockito, dans chaque test</td>
+								<td>Une classe écrite une fois</td>
+							</tr>
+							<tr>
+								<td>Répond</td>
+								<td>Ce qu'on lui a programmé</td>
+								<td>Comme le vrai, en simplifié</td>
+							</tr>
+							<tr>
+								<td>Vérifie les appels</td>
+								<td>Oui, avec <code>verify</code></td>
+								<td>Non</td>
+							</tr>
+							<tr>
+								<td>Idéal pour</td>
+								<td>Services externes, appels à vérifier</td>
+								<td>Repositories, données manipulées</td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">Les deux se combinent très bien : un fake pour le stock, un mock pour le paiement qu'on veut vérifier.</aside>
+				</section>
+				<section data-ak-question="code" data-ak-language="java" data-ak-id="commande-acceptee">
+					<h4>À vous : le stock suffit, Alice est débitée de 12 €</h4>
+					<p>Programmez le stock, passez la commande, vérifiez le paiement.</p>
 					<script type="text/x-java" data-ak-context>
-interface MultiplicationService {
-    int multiply(int a, int b);
+interface StockRepository {
+    int quantiteDisponible(String produit);
 }
 
-class Calculator {
-    private MultiplicationService multiplicationService;
+interface PaiementClient {
+    void payer(String client, long montant);
+}
 
-    int product(int a, int b) {
-        return multiplicationService.multiply(a, b);
+record Commande(String client, String produit, int quantite, long montant) {}
+
+class StockInsuffisantException extends RuntimeException {
+    StockInsuffisantException(String produit) {
+        super("Stock insuffisant : " + produit);
+    }
+}
+
+class CommandeService {
+    private final StockRepository stockRepository;
+    private final PaiementClient paiementClient;
+
+    CommandeService(StockRepository stockRepository, PaiementClient paiementClient) {
+        this.stockRepository = stockRepository;
+        this.paiementClient = paiementClient;
+    }
+
+    void passerCommande(Commande commande) {
+        int disponible = stockRepository.quantiteDisponible(commande.produit());
+        if (disponible < commande.quantite()) {
+            throw new StockInsuffisantException(commande.produit());
+        }
+        paiementClient.payer(commande.client(), commande.montant());
     }
 }
 					</script>
 					<script type="text/x-java" data-ak-template>
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-class CalculatorTest {
-    @InjectMocks
-    private Calculator calculator;
+@ExtendWith(MockitoExtension.class)
+class CommandeServiceTest {
     @Mock
-    private MultiplicationService multiplicationService;
+    private StockRepository stockRepository;
+    @Mock
+    private PaiementClient paiementClient;
+    @InjectMocks
+    private CommandeService commandeService;
 
     @Test
-    public void testProduct() {
+    void debiteLeClientQuandLeStockSuffit() {
         @@
     }
 }
 					</script>
+					<aside class="notes">Réponse attendue :
+when(stockRepository.quantiteDisponible("tomate")).thenReturn(5);
+commandeService.passerCommande(new Commande("alice", "tomate", 3, 1200));
+verify(paiementClient).payer("alice", 1200);
+Erreurs fréquentes à regrouper : oublier le when (le mock renvoie 0, donc exception), vérifier avec assertEquals au lieu de verify, ou verify sans les bons arguments.</aside>
 				</section>
 				<section>
-					<iframe src="https://giphy.com/embed/f6z5TkrTIBZILYOd1t" width="480" height="480" frameBorder="0"
-						class="giphy-embed" allowFullScreen></iframe>
-					<p><a href="https://giphy.com/gifs/NetflixisaJoke-netflix-iglesias-mr-f6z5TkrTIBZILYOd1t"></a>
-					</p>
+					<img class="photo" src="assets/test-rire.gif" alt="Rire">
+					<aside class="notes">Pause après l'exercice.</aside>
 				</section>
 				<section>
-					<h1>Feature</h1>
+					<p class="kicker">Exercice</p>
+					<h2>Feature</h2>
 					<ul>
-						<li>Faire un virement d'un montant x entre 2 comptes.</li>
+						<li>Faire un virement d'un montant X entre deux comptes</li>
 						<li>Retirer X au compte source et ajouter X au compte cible</li>
 						<li>Le montant du virement doit être positif</li>
-						<li>Si le compte source finit avec moins de 0 on envoie un montant de 0.5 vers le compte de la banque</li>
+						<li>Si le compte source finit avec moins de 0, on envoie un montant de 0,5 vers le compte de la banque</li>
 					</ul>
+					<aside class="notes">À faire en TDD : un test rouge par règle, dans l'ordre. Le dernier point est le cas intéressant pour les mocks : le compte de la banque.</aside>
 				</section>
 				<section>
-					<h1>Play Time</h1>
+					<p class="kicker">Exercice</p>
+					<h2>Play time</h2>
+					<aside class="notes">Les étudiants codent la feature en TDD.</aside>
 				</section>
 				<section>
-					<h1>Play time Angular</h1>
+					<p class="kicker">Exercice</p>
+					<h2>Play time Angular</h2>
+					<aside class="notes">Même démarche côté front.</aside>
 				</section>
 			</section>
-			<section>
-				<section>
-					<h1>Les tests d'intégrations</h1>
-					<ul>
-						<li>Lancer tout ou une partie de l'application</li>
-						<li>Mets en place une base de données</li>
-						<li>Quelques mocks (Services externes)</li>
-					</ul>
-				</section>
-				<section>
-					<h1>Pourquoi faire un test d'intégration</h1>
-					<ul>
-						<li>Tester la communication entre les classes</li>
-						<li>Tester la communication avec le framework</li>
-						<li>Vérifier la compatibilité de la base</li>
-					</ul>
-				</section>
-				<section>
-					<h2>Pourquoi faire des tests unitaires ? Les tests d'intégration ça suffit ? </h2>
-					<div class="r-stack">
-						<div class="fragment fade-in-then-out">
-							<iframe src="https://giphy.com/embed/6XPmkX0c6Z868tLYu4" width="480" height="480"
-								frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
-							<p><a href="https://giphy.com/gifs/warning-danger-meter-6XPmkX0c6Z868tLYu4"></a>
-							</p>
-						</div>
 
-						<ul class="fragment fade-left">
-							<li>C'est long à exécuter</li>
-							<li>C'est plus compliqué à maintenir</li>
-							<li>C'est plus compliqué à déboguer</li>
+			<!-- Acte 3 : tests d'intégration -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 3</p>
+					<h1>Les tests d'intégration</h1>
+					<p>Tester avec le framework et la base</p>
+					<aside class="notes">Les tests unitaires ont remplacé la base par des faux. Mais qui vérifie que les requêtes SQL marchent, que le JSON est bien lu, que Spring câble bien tout ? C'est le rôle des tests d'intégration.</aside>
+				</section>
+				<section>
+					<h2>Le principe</h2>
+					<ul>
+						<li class="fragment">Lancer tout ou une partie de l'application</li>
+						<li class="fragment">Avec une vraie base de données</li>
+						<li class="fragment">Quelques faux, seulement pour les services externes</li>
+					</ul>
+					<aside class="notes">La différence avec l'unitaire : on garde les vraies dépendances internes, on ne remplace que ce qui sort de chez nous.</aside>
+				</section>
+				<section>
+					<h2>Pourquoi ?</h2>
+					<ul>
+						<li class="fragment">Tester la communication entre les classes</li>
+						<li class="fragment">Tester la communication avec le framework</li>
+						<li class="fragment">Vérifier les requêtes sur la vraie base</li>
+					</ul>
+					<aside class="notes">Exemple : une faute de frappe dans le nom d'une méthode de repository Spring Data. Les tests unitaires sont verts, ils utilisent un mock. L'application ne démarre pas.</aside>
+				</section>
+				<section>
+					<h2>Alors, que des tests d'intégration ?</h2>
+					<div class="r-stack">
+						<img class="photo fragment fade-in-then-out" src="assets/test-danger.gif" alt="Danger">
+						<ul class="fragment">
+							<li class="con">C'est long à exécuter</li>
+							<li class="con">C'est plus compliqué à maintenir</li>
+							<li class="con">C'est plus compliqué à déboguer</li>
 						</ul>
 					</div>
+					<aside class="notes">Un test unitaire tourne en millisecondes, un test d'intégration en secondes. Et quand il échoue, la cause peut être dans n'importe quelle couche. Retour à la pyramide : peu de tests d'intégration, beaucoup d'unitaires.</aside>
 				</section>
 				<section>
-					<h2>Plusieurs niveaux de test d'intégration</h2>
-					<ul>
-						<li>Test de repository -> Test de la base</li>
-						<li>Test de Service -> Test du framework + base/transaction</li>
-						<li>Test de contrôleur -> Test auth + Mapping (JSON -> DTO -> Domain) + PATH </li>
-					</ul>
+					<h2>Trois niveaux</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Test de…</th>
+								<th>Ce qu'on vérifie</th>
+								<th>Outil</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Repository</td>
+								<td>Les requêtes sur la base</td>
+								<td><code>@DataJpaTest</code></td>
+							</tr>
+							<tr>
+								<td>Service</td>
+								<td>Le framework, la base, les transactions</td>
+								<td><code>@SpringBootTest</code></td>
+							</tr>
+							<tr>
+								<td>Contrôleur</td>
+								<td>L'URL, le JSON, la sécurité, les codes HTTP</td>
+								<td><code>@WebMvcTest</code></td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">On va dérouler le repository et le contrôleur. Le test de service démarre toute l'application, il s'écrit comme le test de repository avec @SpringBootTest.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="niveau-de-test">
-					<h4>Un test qui démarre l'application avec une base H2 et appelle <code>GET /clients</code> en JSON, c'est un test…</h4>
-					<ul style="list-style: none;">
-						<li><strong>A.</strong> unitaire</li>
-						<li><strong>B.</strong> d'intégration (contrôleur)</li>
-						<li><strong>C.</strong> end-to-end</li>
+				<section>
+					<h2>H2 : la base qui n'est pas PostgreSQL</h2>
+					<ul>
+						<li class="fragment">Longtemps, on a utilisé <strong>H2</strong> : une base SQL en mémoire</li>
+						<li class="fragment pro">Rapide, rien à installer</li>
+						<li class="fragment con">Ce n'est pas PostgreSQL : types, fonctions et SQL diffèrent</li>
+						<li class="fragment con">Test vert sur H2, erreur en production</li>
 					</ul>
+					<aside class="notes">Exemple : une requête native avec ILIKE ou un champ jsonb marche en production sur PostgreSQL et plante sur H2, ou l'inverse. Le test ne prouve rien sur la vraie base.</aside>
+				</section>
+				<section>
+					<h2>Testcontainers</h2>
+					<p>Un vrai PostgreSQL, dans Docker, le temps des tests</p>
+					<div class="mermaid">
+						<pre>
+							sequenceDiagram
+							participant T as Test
+							participant TC as Testcontainers
+							participant D as Docker
+							participant S as Spring
+							T->>TC: Démarrage des tests
+							TC->>D: Lance postgres:16
+							D-->>TC: Prêt sur le port 54321
+							TC->>S: URL de la base
+							S->>D: Requêtes des tests
+							TC->>D: Supprime le conteneur
+						</pre>
+					</div>
+					<aside class="notes">Dérouler les flèches une par une. Le port est choisi au hasard pour ne pas entrer en conflit avec un PostgreSQL local. Il faut Docker sur le poste et dans la CI.</aside>
+				</section>
+				<section>
+					<h2>Test de repository</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|1-3|6-9|15-17|19-22">
+@DataJpaTest
+@Testcontainers
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+class ProduitRepositoryTest {
+
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer&lt;?&gt; postgres =
+            new PostgreSQLContainer&lt;&gt;("postgres:16");
+
+    @Autowired
+    private ProduitRepository produitRepository;
+
+    @Test
+    void trouveLesProduitsEnRupture() {
+        produitRepository.save(new Produit("tomate", 0));
+        produitRepository.save(new Produit("comté", 4));
+
+        List&lt;Produit&gt; enRupture = produitRepository.findByStock(0);
+
+        assertEquals(1, enRupture.size());
+        assertEquals("tomate", enRupture.get(0).getNom());
+    }
+}
+					</code></pre>
+					<aside class="notes">Étapes : @DataJpaTest ne démarre que JPA ; replace = NONE l'empêche de remplacer la base par une base en mémoire. @ServiceConnection (Spring Boot 3.1 et plus) donne l'URL du conteneur à Spring, sans configuration. Ensuite un test classique Given / When / Then, sur une vraie base.</aside>
+				</section>
+				<section>
+					<h2>Et pour un middleware ?</h2>
+					<p>RabbitMQ, Kafka, Redis… : pareil, avec Testcontainers</p>
+					<pre><code class="language-java" data-trim>
+@Container
+@ServiceConnection
+static RabbitMQContainer rabbit =
+        new RabbitMQContainer("rabbitmq:4-management");
+					</code></pre>
+					<aside class="notes">On reverra RabbitMQ dans le cours middleware. Le principe reste le même : un vrai serveur dans Docker, le temps des tests.</aside>
 				</section>
 				<section>
 					<h2>Test de contrôleur</h2>
+					<ol>
+						<li class="fragment"><code>@WebMvcTest</code> ne démarre que la couche web</li>
+						<li class="fragment">Le service est un mock : on teste le mapping, pas la règle métier</li>
+						<li class="fragment"><code>MockMvc</code> simule une requête HTTP, sans vrai serveur</li>
+						<li class="fragment">On vérifie le code HTTP et le JSON</li>
+					</ol>
+					<aside class="notes">Ce qu'on vérifie ici : l'URL, la lecture des paramètres, le JSON produit, les codes d'erreur. La logique, elle, est déjà couverte par les tests unitaires du service.</aside>
+				</section>
+				<section>
+					<h2>Test de contrôleur</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|1|7-8|12-13|15-18">
+@WebMvcTest(CommandeController.class)
+class CommandeControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private CommandeService commandeService;
+
+    @Test
+    void renvoieLaCommandeEnJson() throws Exception {
+        when(commandeService.trouver(42))
+                .thenReturn(new CommandeDto(42, "alice", 1200));
+
+        mockMvc.perform(get("/api/commandes/42"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.client").value("alice"))
+                .andExpect(jsonPath("$.montant").value(1200));
+    }
+}
+					</code></pre>
+					<aside class="notes">@MockitoBean existe depuis Spring Boot 3.4 ; avant, c'était @MockBean. Même rôle que @Mock, mais le faux est placé dans le contexte Spring. Bon exercice oral : comment tester le cas 404, quand la commande n'existe pas ?</aside>
+				</section>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="niveau-de-test">
+					<h4>Un test qui démarre l'application avec un PostgreSQL Testcontainers et appelle <code>GET /api/produits</code> en JSON, c'est un test…</h4>
 					<ul>
-						<li>Utiliser MockMvc</li>
-						<li>Mocker les Services (On veut vérifier le mapping)</li>
+						<li><strong>A.</strong> unitaire</li>
+						<li><strong>B.</strong> d'intégration</li>
+						<li><strong>C.</strong> end-to-end</li>
 					</ul>
+					<aside class="notes">Réponse B. Il y a une vraie base et le framework, mais pas de navigateur ni de front : ce n'est pas un end-to-end.</aside>
 				</section>
 				<section>
-					<h1>C'est quoi la base ? C'est pas un postgres ! </h1>
-					<p>C'est une base H2</p>
-					<p>Base SQL in memory, attention il y a des petites différences avec PostgreSQL</p>
+					<h2>Un client HTTP vers un fournisseur</h2>
+					<p>FraisDirect lit le prix du jour sur l'API de la ferme</p>
+					<p class="fragment"><strong>Jamais de vraie requête vers un serveur externe dans un test</strong></p>
+					<ul>
+						<li class="fragment con">Le serveur peut être lent ou en panne : le test échoue sans raison</li>
+						<li class="fragment con">L'API peut être payante, ou créer de vraies commandes</li>
+					</ul>
+					<aside class="notes">Un test doit donner le même résultat à chaque exécution. Un serveur qu'on ne contrôle pas rend le test aléatoire.</aside>
 				</section>
 				<section>
-					<h1>
-						Je dois me connecter à un middleware comment faire
-					</h1>
-					<p>Essayer Testcontainers</p>
+					<h2>WireMock : un faux serveur</h2>
+					<div class="mermaid">
+						<pre>
+							sequenceDiagram
+							participant T as Test
+							participant C as FournisseurClient
+							participant W as WireMock
+							T->>W: Si GET /prix/tomate, réponds {"prix": 320}
+							T->>C: prixDuJour("tomate")
+							C->>W: GET /prix/tomate
+							W-->>C: 200 {"prix": 320}
+							C-->>T: 320
+						</pre>
+					</div>
+					<aside class="notes">Le client ne sait pas qu'il parle à un faux : on lui donne juste une autre URL. Le vrai code HTTP est exécuté : la requête, la lecture du JSON, la gestion des erreurs.</aside>
 				</section>
 				<section>
-					<h1>Je teste mon client HTTP qui se connecte à l'API d'un fournisseur</h1>
-					<p> Les tests ne doivent jamais faire de vraie requête vers un serveur externe</p>
+					<h2>WireMock : le test</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|6-7|8-9|11|13">
+@WireMockTest
+class FournisseurClientTest {
+
+    @Test
+    void litLePrixDuJour(WireMockRuntimeInfo wiremock) {
+        stubFor(get("/prix/tomate")
+                .willReturn(okJson("{\"prix\": 320}")));
+        var url = wiremock.getHttpBaseUrl();
+        var client = new FournisseurClient(url);
+
+        long prix = client.prixDuJour("tomate");
+
+        assertEquals(320, prix);
+    }
+}
+					</code></pre>
+					<aside class="notes">Étapes : programmer la réponse, pointer le client vers WireMock, appeler, vérifier. Le vrai intérêt : tester les cas qu'on ne peut pas provoquer chez le fournisseur, comme une erreur 500 ou un délai de 30 secondes.</aside>
 				</section>
 			</section>
+
+			<!-- Acte 4 : tests end-to-end -->
 			<section>
-				<section>
-					<h1>Les tests End-to-end</h1>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 4</p>
+					<h1>Les tests end-to-end</h1>
+					<p>Tester comme un utilisateur</p>
+					<aside class="notes">Le haut de la pyramide : tout est vrai, du navigateur à la base.</aside>
 				</section>
 				<section>
-					<h2>Principe</h2>
+					<h2>Le principe</h2>
+					<ol>
+						<li class="fragment">Lancer l'application complète : front, back, middlewares</li>
+						<li class="fragment">Simuler des actions dans un navigateur</li>
+						<li class="fragment">Vérifier ce que l'utilisateur voit</li>
+					</ol>
+					<p class="fragment">Objectif : vérifier que <strong>tout communique</strong> correctement</p>
+					<aside class="notes">Un robot clique à la place de l'utilisateur. Le test ne connaît pas le code, seulement l'écran.</aside>
+				</section>
+				<section>
+					<h2>Un scénario</h2>
+					<ol>
+						<li class="fragment">Ouvrir FraisDirect</li>
+						<li class="fragment">Ajouter deux comtés à 27 € au panier</li>
+						<li class="fragment">Ouvrir le panier</li>
+						<li class="fragment">Lire « Livraison offerte »</li>
+					</ol>
+					<aside class="notes">La même règle que le TDD, vue depuis l'écran. Ce test vérifie que le front affiche bien ce que l'API calcule.</aside>
+				</section>
+				<section>
+					<h2>Exemple avec Playwright</h2>
+					<pre class="long"><code class="language-typescript" data-trim data-line-numbers="|2|3-6|7|8-9">
+test('livraison offerte dès 50 €', async ({ page }) =&gt; {
+  await page.goto('http://localhost:4200');
+  const comte = page.getByRole('button',
+      { name: 'Ajouter Comté 18 mois' });
+  await comte.click();
+  await comte.click();
+  await page.getByRole('link', { name: 'Panier' }).click();
+  await expect(page.getByText('Livraison offerte'))
+      .toBeVisible();
+});
+					</code></pre>
+					<p><small>Selenium et Cypress fonctionnent sur le même principe</small></p>
+					<aside class="notes">Chaque ligne correspond à une étape du scénario. On cherche les éléments comme un utilisateur, par leur rôle et leur texte, pas par leur classe CSS : le test casse moins souvent quand le design change.</aside>
+				</section>
+				<section>
+					<h2>Les difficultés</h2>
 					<ul>
-						<li>Lancer une application complète (Middleware/BackEnd/FrontEnd)</li>
-						<li>Simuler des actions sur un navigateur</li>
-						<li>Vérifier le comportement de l'application</li>
+						<li class="fragment con">Préparer la base</li>
+						<li class="fragment con">Lourd à écrire</li>
+						<li class="fragment con">Lourd à exécuter</li>
+						<li class="fragment con">Quand les exécuter ?</li>
+						<li class="fragment con">Difficile à maintenir</li>
 					</ul>
+					<aside class="notes">Préparer la base : le comté doit exister, coûter 27 €, être en stock. Quand les exécuter : trop lents pour chaque commit, souvent la nuit ou avant une mise en production.</aside>
 				</section>
 				<section>
-					<h2>Objectif</h2>
-					<ol>
-						<li>Vérifier que tout communique correctement</li>
-					</ol>
-				</section>
-				<section>
-					<h2>Difficulté</h2>
-					<ol>
-						<li>Préparer la base</li>
-						<li>Lourd à exécuter</li>
-						<li>Lourd à écrire</li>
-						<li>Quand les exécuter ?</li>
-						<li>Difficile à maintenir</li>
-					</ol>
-				</section>
-				<section>
-					<h2>Faut-il le faire</h2>
-					<ol>
-						<li>Oui !!!</li>
-						<li>Au moins sur les chemins usuels</li>
-						<li>Ne remplace pas les tests manuels</li>
-					</ol>
-				</section>
-				<section>
-					<h2>Exemple avec Selenium</h2>
+					<h2>Faut-il en faire ?</h2>
+					<ul>
+						<li class="fragment pro"><strong>Oui !</strong></li>
+						<li class="fragment pro">Au moins sur les chemins usuels : commander, payer, se connecter</li>
+						<li class="fragment con">Ils ne remplacent pas les tests manuels</li>
+					</ul>
+					<aside class="notes">Peu de tests, mais sur ce qui rapporte : si la commande ne marche plus, FraisDirect ne gagne plus d'argent.</aside>
 				</section>
 			</section>
+
+			<!-- Conclusion -->
 			<section>
-				<h1>C'est quoi un fake*</h1>
-				<ul>
-					<li>Une implémentation simplifiée</li>
-					<li>Exemple : remplace un repository par une implémentation qui stocke dans une map</li>
-				</ul>
+				<section class="retenir">
+					<h2>À retenir</h2>
+					<ul>
+						<li>Tester, c'est surtout éviter les <strong>régressions</strong></li>
+						<li>TDD : rouge, vert, refactor, par petits pas</li>
+						<li>Unitaire : une classe, des mocks et des fakes, tester ses décisions</li>
+						<li>Intégration : une vraie base avec Testcontainers, jamais de vrai serveur externe</li>
+						<li>End-to-end : peu, sur les chemins qui comptent</li>
+					</ul>
+					<aside class="notes">Revenir à la pyramide une dernière fois. La prochaine fois, FraisDirect grandit : cours middleware.</aside>
+				</section>
 			</section>
 		</div>
 	</div>
@@ -328,12 +1038,62 @@ class CalculatorTest {
 		// More info about initialization & config:
 		// - https://revealjs.com/initialization/
 		// - https://revealjs.com/config/
+		// Mermaid donne les mêmes id aux pointes de flèche de tous les schémas : le
+		// navigateur prend celles du premier, sur une slide masquée, et les flèches
+		// perdent leur pointe. On rend ces id uniques, schéma par schéma.
+		function fixMermaidMarkers() {
+			document.querySelectorAll('.mermaid svg:not([data-markers-fixed])').forEach(svg => {
+				svg.querySelectorAll('marker').forEach(marker => {
+					marker.id = svg.id + '-' + marker.id;
+				});
+				svg.querySelectorAll('[marker-start], [marker-end]').forEach(el => {
+					['marker-start', 'marker-end'].forEach(attr => {
+						const value = el.getAttribute(attr);
+						if (value) el.setAttribute(attr, value.replace('url(#', 'url(#' + svg.id + '-'));
+					});
+				});
+				svg.setAttribute('data-markers-fixed', '');
+			});
+		}
+		// Les schémas sont insérés de façon asynchrone, y compris en mode impression
+		new MutationObserver(fixMermaidMarkers)
+			.observe(document.querySelector('.reveal .slides'), { childList: true, subtree: true });
+
 		Reveal.initialize({
 			hash: true,
+			// Couleurs des schémas, accordées à css/cours.css
 			mermaid: {
-				// flowchart: {
-				//   curve: 'linear',
-				// },
+				theme: 'base',
+				themeVariables: {
+					darkMode: true,
+					fontFamily: 'Source Sans Pro, Helvetica, sans-serif',
+					fontSize: '22px',
+					background: '#0f1724',
+					primaryColor: '#1b2a45',
+					primaryTextColor: '#e8eef7',
+					primaryBorderColor: '#4ade80',
+					secondaryColor: '#22304d',
+					tertiaryColor: '#18233a',
+					lineColor: '#7dd3fc',
+					textColor: '#e8eef7',
+					edgeLabelBackground: '#0f1724',
+					actorBkg: '#1b2a45',
+					actorBorder: '#4ade80',
+					actorTextColor: '#e8eef7',
+					actorLineColor: '#475569',
+					signalColor: '#7dd3fc',
+					signalTextColor: '#e8eef7',
+					noteBkgColor: '#3a2f14',
+					noteTextColor: '#fde68a',
+					noteBorderColor: '#f59e0b',
+					labelBoxBkgColor: '#22304d',
+					labelBoxBorderColor: '#4ade80',
+					labelTextColor: '#e8eef7',
+					loopTextColor: '#e8eef7'
+				},
+				flowchart: { curve: 'basis', padding: 16 },
+				fontSize: 22,
+				sequence: { mirrorActors: false, width: 130, actorMargin: 40 }
 			},
 			// Learn about plugins: https://revealjs.com/plugins/
 			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMermaid]
