@@ -1,5 +1,5 @@
 /*
- * Style des cours (tests, bonnes pratiques, middleware, sécurité), chargé après dist/theme/black.css.
+ * Style des cours (tests, bonnes pratiques, middleware, sécurité, observabilité), chargé après dist/theme/black.css.
  * Palette « FraisDirect » : bleu nuit, vert frais, tomate pour les pannes.
  */
 :root {
@@ -587,4 +587,59 @@
 	font-size: 0.75em;
 	line-height: 1.4;
 	text-align: left;
+}
+
+/* Une trace : chaque span placé dans le temps, en % de la durée totale */
+.reveal .trace {
+	margin: 0.6em auto;
+	width: 95%;
+}
+
+.reveal .trace .span-ligne {
+	display: flex;
+	align-items: center;
+	margin: 0.25em 0;
+}
+
+.reveal .trace .nom {
+	width: 14em;
+	flex-shrink: 0;
+	padding-right: 0.8em;
+	font-family: var(--r-code-font);
+	font-size: 0.5em;
+	text-align: right;
+	color: var(--fd-muted);
+}
+
+.reveal .trace .piste {
+	position: relative;
+	flex: 1;
+	height: 1em;
+	border-radius: 6px;
+	background: rgba(255, 255, 255, 0.04);
+}
+
+.reveal .trace .piste i {
+	position: absolute;
+	left: calc(var(--debut) * 1%);
+	width: calc(var(--duree) * 1%);
+	min-width: 6px;
+	height: 100%;
+	border-radius: 6px;
+}
+
+.reveal .trace .api {
+	background: var(--fd-accent);
+}
+
+.reveal .trace .base {
+	background: var(--fd-sky);
+}
+
+.reveal .trace .messagerie {
+	background: #c084fc;
+}
+
+.reveal .trace .lent {
+	background: var(--fd-tomato);
 }

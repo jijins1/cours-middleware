@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>Observabilité</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	<link rel="stylesheet" href="css/cours.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section data-ak-join>
+				<h2>Rejoignez la séance</h2>
+				<p>Scannez le QR code ou entrez le code sur votre téléphone.</p>
+			</section>
+
+			<!-- Introduction -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Cours</p>
+					<h1>Observabilité</h1>
+					<p>Comprendre ce qui se passe en production</p>
+					<aside class="notes">Fil rouge : FraisDirect, après le cours middleware. Elle a maintenant un load balancer, plusieurs instances, RabbitMQ et un service de livraison. Elle tourne en production, et un jour, elle est lente.</aside>
+				</section>
+				<section>
+					<h2>FraisDirect en production</h2>
+					<div class="mermaid">
+						<pre>
+							graph LR
+							C[Client] --> LB[Load balancer]
+							LB --> A1[API 1]
+							LB --> A2[API 2]
+							LB --> A3[API 3]
+							A1 --> PG[(PostgreSQL)]
+							A1 --> B[Banque]
+							A1 --> R[RabbitMQ]
+							R --> L[Service livraison]
+						</pre>
+					</div>
+					<aside class="notes">L'architecture à la fin du cours middleware, simplifiée : seule l'API 1 montre ses flèches, mais les trois font pareil.</aside>
+				</section>
+				<section>
+					<h2>Vendredi, 19 h</h2>
+					<ol>
+						<li class="fragment">Les clients se plaignent : une commande prend 10 secondes</li>
+						<li class="fragment">Le tableau de bord : tous les serveurs sont verts</li>
+						<li class="fragment">Les logs : 3 instances, 2 millions de lignes</li>
+						<li class="fragment">Par où commencer ?</li>
+					</ol>
+					<aside class="notes">Demander à la salle ce qu'ils feraient. On garde la question en tête pendant tout le cours : on y répond à la fin, avec une trace.</aside>
+				</section>
+				<section>
+					<h2>Au programme</h2>
+					<ol>
+						<li>Monitoring, alerting, logs, <strong>observabilité</strong> : qui fait quoi</li>
+						<li>Bien écrire ses <strong>logs</strong></li>
+						<li>Mesurer avec des <strong>métriques</strong></li>
+						<li>Suivre une requête avec des <strong>traces</strong></li>
+					</ol>
+					<aside class="notes">Les trois derniers points sont les trois signaux d'OpenTelemetry.</aside>
+				</section>
+			</section>
+
+			<!-- Acte 1 : les définitions -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 1</p>
+					<h1>Qui fait quoi ?</h1>
+					<p>Monitoring, alerting, logs, observabilité</p>
+					<aside class="notes">Quatre mots qu'on mélange souvent. Chacun répond à une question différente.</aside>
+				</section>
+				<section>
+					<h2>Le monitoring</h2>
+					<p>Vérifier à intervalle régulier une assertion</p>
+					<p class="fragment"><small>Un test unitaire, mais en production</small></p>
+					<ul>
+						<li class="fragment pro">Détecte les pannes qu'on sait prévoir : serveur arrêté, disque plein, réseau coupé</li>
+						<li class="fragment con">Ne détecte pas les pannes inconnues</li>
+						<li class="fragment con">N'aide pas à résoudre un bug</li>
+					</ul>
+					<aside class="notes">Le monitoring répond à « est-ce que ça marche ? ». Vendredi 19 h, tous les tests du monitoring passent : les serveurs répondent, simplement lentement. Le réseau est le cas le plus piégeux : le serveur de monitoring peut être le seul à ne plus le voir.</aside>
+				</section>
+				<section>
+					<h2>L'alerting</h2>
+					<ul>
+						<li class="fragment">Prévenir quelqu'un quand une panne est détectée</li>
+						<li class="fragment">Permet de réagir vite</li>
+						<li class="fragment con">Ne dit pas pourquoi</li>
+					</ul>
+					<aside class="notes">Un mail, un SMS, un message à l'astreinte. L'alerting s'appuie sur le monitoring ou sur les métriques.</aside>
+				</section>
+				<section>
+					<h2>Les logs</h2>
+					<ul>
+						<li class="fragment pro">Suivre une action en particulier : la commande 42</li>
+						<li class="fragment con">Pas de vision globale : combien de commandes lentes ? depuis quand ?</li>
+					</ul>
+					<aside class="notes">Les logs répondent à « que s'est-il passé pour cette requête ? », mais pas à « que se passe-t-il en général ? ».</aside>
+				</section>
+				<section>
+					<h2>L'observabilité</h2>
+					<p>Tout le reste</p>
+					<ul>
+						<li class="fragment pro">Comprendre une panne, même inconnue</li>
+						<li class="fragment pro">Faciliter sa résolution</li>
+						<li class="fragment pro">Être sûr qu'on en est sorti</li>
+						<li class="fragment con">Ne remplace pas le monitoring, les logs et l'alerting</li>
+					</ul>
+					<aside class="notes">Le monitoring répond aux questions qu'on a prévues. L'observabilité permet de poser des questions qu'on n'avait pas prévues : « les commandes sont lentes, mais seulement celles payées par carte, seulement depuis 18 h ».</aside>
+				</section>
+				<section>
+					<h2>En résumé</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Question</th>
+								<th>Outil</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Est-ce que ça marche ?</td>
+								<td>Monitoring</td>
+							</tr>
+							<tr>
+								<td>Qui doit réagir ?</td>
+								<td>Alerting</td>
+							</tr>
+							<tr>
+								<td>Que s'est-il passé pour cette requête ?</td>
+								<td>Logs</td>
+							</tr>
+							<tr>
+								<td>Pourquoi ça ne marche pas ?</td>
+								<td>Observabilité</td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">Faire relire le tableau à voix haute, puis question.</aside>
+				</section>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="obs-outil">
+					<h4>Le site ne répond plus à 3 h du matin. Envoyer un SMS à la personne d'astreinte, c'est le rôle…</h4>
+					<ul>
+						<li><strong>A.</strong> du monitoring</li>
+						<li><strong>B.</strong> de l'alerting</li>
+						<li><strong>C.</strong> des logs</li>
+						<li><strong>D.</strong> de l'observabilité</li>
+					</ul>
+					<aside class="notes">Réponse B. Le monitoring a détecté la panne, l'alerting prévient. Les deux vont ensemble mais ne font pas la même chose.</aside>
+				</section>
+				<section>
+					<h2>Pourquoi maintenant ?</h2>
+					<ul>
+						<li class="fragment">Des systèmes de plus en plus complexes : FraisDirect a déjà 6 composants</li>
+						<li class="fragment">Des disponibilités de plus en plus hautes</li>
+					</ul>
+					<table class="fragment">
+						<thead>
+							<tr>
+								<th>Disponibilité</th>
+								<th>Panne autorisée par an</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>99 %</td>
+								<td>3,65 jours</td>
+							</tr>
+							<tr>
+								<td>99,9 %</td>
+								<td>8 h 45</td>
+							</tr>
+							<tr>
+								<td>99,99 %</td>
+								<td>52 minutes</td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">À 99,99 %, on a 52 minutes par an pour trouver et corriger. Impossible si on passe une heure à lire des logs pour comprendre.</aside>
+				</section>
+				<section>
+					<h2>Un exemple : Vizceral</h2>
+					<img class="photo" src="assets/vizceral.png" alt="Vizceral : le trafic entre les datacenters en temps réel">
+					<aside class="notes">L'outil de Netflix : chaque point est une requête, en temps réel. Cas d'usage : après une maintenance, un datacenter n'a pas été rallumé. Aucune alerte, puisque rien n'est en panne, mais on voit tout de suite qu'une branche ne reçoit plus de trafic.</aside>
+				</section>
+				<section>
+					<h2>OpenTelemetry</h2>
+					<p>Un standard pour produire les signaux</p>
+					<table>
+						<thead>
+							<tr>
+								<th>Signal</th>
+								<th>Répond à</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Logs</td>
+								<td>Que s'est-il passé ?</td>
+							</tr>
+							<tr>
+								<td>Métriques</td>
+								<td>Combien, à quelle vitesse ?</td>
+							</tr>
+							<tr>
+								<td>Traces</td>
+								<td>Par où est passée la requête ?</td>
+							</tr>
+							<tr>
+								<td>Baggage</td>
+								<td>Quel contexte transporter avec elle ?</td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">OpenTelemetry (OTel) définit le format et fournit les librairies. On choisit ensuite où envoyer les signaux. Le baggage est plus rare : des données métier qui voyagent avec la requête, comme l'identifiant du client. On voit les trois premiers, un par acte.</aside>
+				</section>
+			</section>
+
+			<!-- Acte 2 : les logs -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 2</p>
+					<h1>Les logs</h1>
+					<p>Écrire des logs qu'on pourra relire</p>
+					<aside class="notes">Tout le monde écrit des logs. Peu de gens écrivent des logs utiles à 19 h un vendredi.</aside>
+				</section>
+				<section>
+					<h2>Le bon niveau</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Niveau</th>
+								<th>Exemple FraisDirect</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>ERROR</code></td>
+								<td>La base ne répond plus, la commande est perdue</td>
+							</tr>
+							<tr>
+								<td><code>WARN</code></td>
+								<td>La banque a répondu en erreur, on réessaie</td>
+							</tr>
+							<tr>
+								<td><code>INFO</code></td>
+								<td>Commande 42 créée</td>
+							</tr>
+							<tr>
+								<td><code>DEBUG</code></td>
+								<td>Détail du calcul des frais de livraison</td>
+							</tr>
+							<tr>
+								<td><code>TRACE</code></td>
+								<td>Chaque ligne du panier</td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">ERROR : quelqu'un doit agir. WARN : anormal, mais l'application s'en sort. INFO : ce qui change l'état du système. En production on garde INFO, on active DEBUG temporairement pour enquêter.</aside>
+				</section>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="log-niveau">
+					<h4>Le paiement d'une commande échoue définitivement : la banque refuse après trois essais. Quel niveau ?</h4>
+					<ul>
+						<li><strong>A.</strong> <code>DEBUG</code></li>
+						<li><strong>B.</strong> <code>INFO</code></li>
+						<li><strong>C.</strong> <code>WARN</code></li>
+						<li><strong>D.</strong> <code>ERROR</code></li>
+					</ul>
+					<aside class="notes">Réponse D si la commande est perdue et que quelqu'un doit agir. Discussion intéressante si certains répondent WARN : une carte refusée pour solde insuffisant est un cas métier normal, pas une erreur. Tout dépend de qui doit réagir.</aside>
+				</section>
+				<section>
+					<h2>Un log utile</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="1|3-4">
+log.info("Commande créée");
+
+log.info("Commande {} créée pour le client {}, {} centimes",
+        commande.id(), commande.client(), commande.montant());
+					</code></pre>
+					<ul>
+						<li class="fragment">Toujours l'identifiant de ce qu'on manipule</li>
+						<li class="fragment">Logguer les <strong>écritures</strong> : création, modification, suppression</li>
+						<li class="fragment con">Jamais de mot de passe, de token ou de numéro de carte</li>
+					</ul>
+					<aside class="notes">Le premier log ne sert à rien le vendredi soir : quelle commande ? Les {} évitent de construire la chaîne si le niveau est désactivé. Les écritures sont ce qu'on cherche en premier quand on enquête : qui a changé quoi, et quand. Le dernier point rejoint le cours sécurité.</aside>
+				</section>
+				<section>
+					<h2>Agréger les logs</h2>
+					<div class="mermaid">
+						<pre>
+							graph LR
+							A1[API 1] --> Col[Collecteur]
+							A2[API 2] --> Col
+							A3[API 3] --> Col
+							L[Service livraison] --> Col
+							Col --> S[("Stockage : Loki, Elasticsearch")]
+							S --> G[Grafana, Kibana]
+						</pre>
+					</div>
+					<p class="fragment">Un seul endroit pour chercher, au lieu de quatre serveurs</p>
+					<aside class="notes">Avec le load balancer, la commande 42 peut avoir été traitée par n'importe quelle instance. Sans agrégation, il faut se connecter à chaque serveur. Avec, on cherche « commande 42 » une seule fois.</aside>
+				</section>
+			</section>
+
+			<!-- Acte 3 : les métriques -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 3</p>
+					<h1>Les métriques</h1>
+					<p>Des chiffres sur l'application, dans le temps</p>
+					<aside class="notes">Les logs racontent une requête. Les métriques donnent la vision globale qui leur manque : combien de commandes lentes, depuis quand.</aside>
+				</section>
+				<section>
+					<h2>C'est quoi une métrique ?</h2>
+					<p>Une mesure de quelque chose dans l'application</p>
+					<ul>
+						<li class="fragment">Un nombre d'actions : commandes passées</li>
+						<li class="fragment">Une durée : temps d'une commande</li>
+						<li class="fragment">Une ressource réservée : connexions à la base</li>
+					</ul>
+					<aside class="notes">Une métrique est un nombre, mesuré régulièrement. On ne regarde jamais une valeur seule, mais une courbe.</aside>
+				</section>
+				<section>
+					<h2>Récupérer les métriques</h2>
+					<div class="colonnes">
+						<div>
+							<h3>Scraping</h3>
+							<div class="mermaid">
+								<pre>
+									graph TD
+									P[Prometheus] -->|GET toutes les 15 s| A[API]
+								</pre>
+							</div>
+							<p>Le système interroge l'application</p>
+						</div>
+						<div>
+							<h3>Push</h3>
+							<div class="mermaid">
+								<pre>
+									graph TD
+									A[API] -->|envoie| I[InfluxDB]
+								</pre>
+							</div>
+							<p>L'application pousse ses mesures</p>
+						</div>
+					</div>
+					<aside class="notes">Prometheus est le plus courant, et c'est celui du projet. En scraping, une application qui ne répond plus ne donne plus de métriques : c'est déjà une information.</aside>
+				</section>
+				<section>
+					<h2>Ajouter des métriques</h2>
+					<ul>
+						<li class="fragment con">À la main, avec un endpoint maison : mauvaise idée</li>
+						<li class="fragment pro">Avec <strong>Micrometer</strong> : une façade, comme SLF4J pour les logs</li>
+						<li class="fragment pro">Compatible avec Prometheus, InfluxDB, Datadog…</li>
+					</ul>
+					<aside class="notes">On écrit le code de mesure une fois avec Micrometer. Changer de Prometheus vers autre chose ne demande qu'une dépendance différente.</aside>
+				</section>
+				<section>
+					<p class="kicker">Pour le projet</p>
+					<h2>Étape 1 · Les dépendances</h2>
+					<p><code>build.gradle</code></p>
+					<pre class="long"><code class="language-groovy" data-trim>
+implementation "org.springframework.boot:spring-boot-starter-actuator"
+implementation "io.micrometer:micrometer-registry-prometheus"
+					</code></pre>
+					<aside class="notes">Pas de version à préciser : Spring Boot gère celle de Micrometer. Actuator fournit les endpoints, le registre Prometheus formate les métriques.</aside>
+				</section>
+				<section>
+					<p class="kicker">Pour le projet</p>
+					<h2>Étape 2 · Exposer l'endpoint</h2>
+					<p><code>application.yaml</code></p>
+					<pre><code class="language-yaml" data-trim data-line-numbers="5">
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+					</code></pre>
+					<aside class="notes">C'est l'endpoint prometheus qu'il faut exposer, pas seulement metrics : c'est lui que Prometheus vient lire. Attention, il ne doit pas être accessible depuis Internet.</aside>
+				</section>
+				<section>
+					<p class="kicker">Pour le projet</p>
+					<h2>Étape 3 · Vérifier</h2>
+					<p><code>GET /actuator/prometheus</code></p>
+					<pre class="long"><code class="language-plaintext" data-trim>
+# TYPE http_server_requests_seconds summary
+http_server_requests_seconds_count{method="POST",uri="/commandes"} 1532
+http_server_requests_seconds_sum{method="POST",uri="/commandes"} 412.7
+# TYPE jvm_memory_used_bytes gauge
+jvm_memory_used_bytes{area="heap"} 1.43E8
+					</code></pre>
+					<aside class="notes">Spring Boot fournit déjà beaucoup de métriques sans rien coder : requêtes HTTP, mémoire, pool de connexions. Les étudiants peuvent le vérifier tout de suite avec curl.</aside>
+				</section>
+				<section>
+					<h2>Les types de mesure</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Type</th>
+								<th>Exemple FraisDirect</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Compteur <small>(Counter)</small></td>
+								<td>Commandes passées</td>
+							</tr>
+							<tr>
+								<td>Durée <small>(Timer)</small></td>
+								<td>Temps de passage d'une commande</td>
+							</tr>
+							<tr>
+								<td>Jauge <small>(Gauge)</small></td>
+								<td>Messages en attente dans RabbitMQ</td>
+							</tr>
+							<tr>
+								<td>Distribution <small>(Distribution summary)</small></td>
+								<td>Montant des paniers</td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">Un compteur ne fait que monter. Une jauge monte et descend. Un timer et une distribution donnent le nombre, la somme, le maximum, et des percentiles si on les active.</aside>
+				</section>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="metrique-type">
+					<h4>On veut suivre le nombre de livreurs disponibles en ce moment. Quel type de mesure ?</h4>
+					<ul>
+						<li><strong>A.</strong> Compteur</li>
+						<li><strong>B.</strong> Durée</li>
+						<li><strong>C.</strong> Jauge</li>
+						<li><strong>D.</strong> Distribution</li>
+					</ul>
+					<aside class="notes">Réponse C : la valeur monte et descend. Un compteur ne peut que monter.</aside>
+				</section>
+				<section>
+					<h2>Mesurer une commande : mauvaise façon</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|2|3|5-7|9-10">
+public void passerCommande(Commande commande) {
+    commandesPassees.increment();
+    chrono.record(() -&gt; {
+        try {
+            verifierStock(commande);
+            payer(commande);
+            publierEvenement(commande);
+        } catch (RuntimeException e) {
+            commandesEchouees.increment();
+            throw e;
+        }
+    });
+}
+					</code></pre>
+					<aside class="notes">Trois lignes de métier noyées dans le code de mesure. Et il faut refaire la même chose dans chaque méthode qu'on veut mesurer.</aside>
+				</section>
+				<section>
+					<h2>Mieux : séparer métier et mesure</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|1-3|5-11">
+public interface CommandeService {
+    void passerCommande(Commande commande);
+}
+
+public class CommandeServiceImpl implements CommandeService {
+    public void passerCommande(Commande commande) {
+        verifierStock(commande);
+        payer(commande);
+        publierEvenement(commande);
+    }
+}
+					</code></pre>
+					<aside class="notes">Étape 1 : une interface, et une implémentation qui ne contient que le métier. Lien avec le cours bonnes pratiques : une classe, une seule raison de changer.</aside>
+				</section>
+				<section>
+					<h2>Mieux : la délégation</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|1-2|4-5|6-9">
+public class CommandeServiceMesure implements CommandeService {
+    private final CommandeService delegue;
+
+    public void passerCommande(Commande commande) {
+        commandesPassees.increment();
+        chrono.record(() -&gt; {
+            try {
+                delegue.passerCommande(commande);
+            } catch (RuntimeException e) {
+                commandesEchouees.increment();
+                throw e;
+            }
+        });
+    }
+}
+					</code></pre>
+					<aside class="notes">Étape 2 : une deuxième implémentation qui mesure et passe la main à la vraie. C'est de la composition, le patron « décorateur ». Le métier ne sait pas qu'il est mesuré.</aside>
+				</section>
+				<section>
+					<h2>Mieux : un aspect</h2>
+					<pre class="long"><code class="language-java" data-trim data-line-numbers="|3|5|6-7|11-13">
+@Aspect
+@Component
+class CommandeMetriques {
+    @Around("execution(* *..CommandeService.passerCommande(..))")
+    Object mesurer(ProceedingJoinPoint appel) throws Throwable {
+        commandesPassees.increment();
+        Timer.Sample chrono = Timer.start(registry);
+        try {
+            return appel.proceed();
+        } catch (Throwable e) {
+            commandesEchouees.increment();
+            throw e;
+        } finally {
+            chrono.stop(registry.timer("commande.duree"));
+        }
+    }
+}
+					</code></pre>
+					<aside class="notes">Étape 3 : Spring exécute ce code autour de la méthode, sans interface ni classe en plus. Il faut spring-boot-starter-aop. L'expression @Around désigne les méthodes concernées.</aside>
+				</section>
+				<section>
+					<h2>Encore plus simple : <code>@Timed</code></h2>
+					<pre class="long"><code class="language-java" data-trim>
+@Timed("commande.duree")
+public void passerCommande(Commande commande) {
+    verifierStock(commande);
+    payer(commande);
+    publierEvenement(commande);
+}
+					</code></pre>
+					<p class="fragment">Micrometer fournit l'aspect tout fait</p>
+					<aside class="notes">@Timed et @Counted fonctionnent avec un bean TimedAspect (et CountedAspect) à déclarer. Pour les cas simples, c'est la solution à préférer. L'aspect écrit à la main reste utile quand on veut une logique particulière.</aside>
+				</section>
+				<section>
+					<h2>Tagguer les métriques</h2>
+					<pre class="long"><code class="language-java" data-trim>
+registry.counter("http.appels", "path", path).increment();
+					</code></pre>
+					<ul>
+						<li class="fragment">Le nombre d'appels, c'est bien</li>
+						<li class="fragment">Le nombre d'appels <strong>par endpoint</strong>, c'est mieux</li>
+						<li class="fragment con">Jamais de valeur sans limite : pas d'identifiant de client en tag</li>
+					</ul>
+					<aside class="notes">Un tag ajoute du contexte, et permet de filtrer et de regrouper. Mais chaque valeur de tag crée une nouvelle série dans Prometheus : avec un identifiant de client, on crée un million de séries et Prometheus tombe.</aside>
+				</section>
+				<section>
+					<h2>Tagguer toutes les métriques</h2>
+					<pre class="long"><code class="language-java" data-trim>
+registry.config().commonTags("instance", nomDuServeur);
+					</code></pre>
+					<p class="fragment">Avec le load balancer : quelle instance est lente ?</p>
+					<aside class="notes">Un tag commun s'ajoute à toutes les métriques de l'application. Avec Spring Boot, on peut aussi l'écrire dans application.yaml : management.metrics.tags.instance. Vendredi 19 h, on verrait tout de suite si une seule instance est lente, ou les trois.</aside>
+				</section>
+			</section>
+
+			<!-- Acte 4 : les traces -->
+			<section>
+				<section class="chapitre" data-background-gradient="radial-gradient(circle at 20% 15%, #14532d 0%, #0f1724 60%)">
+					<p class="kicker">Acte 4</p>
+					<h1>Les traces</h1>
+					<p>Suivre une requête de bout en bout</p>
+					<aside class="notes">Les métriques disent que les commandes sont lentes, sur les trois instances. Mais où se perd le temps ? Base, banque, RabbitMQ ? C'est le rôle des traces.</aside>
+				</section>
+				<section>
+					<h2>Le principe</h2>
+					<ol>
+						<li class="fragment">Quand une requête arrive, on lui donne un <strong>traceId</strong></li>
+						<li class="fragment">On fait suivre le traceId pendant toute la requête, d'un service à l'autre</li>
+						<li class="fragment">On découpe le traitement en <strong>spans</strong> : une étape, avec un début et une fin</li>
+					</ol>
+					<aside class="notes">Une trace, c'est l'arbre de tous les spans d'une même requête.</aside>
+				</section>
+				<section>
+					<h2>Le traceId voyage</h2>
+					<div class="mermaid">
+						<pre>
+							sequenceDiagram
+							participant LB as Load balancer
+							participant API as API
+							participant B as Banque
+							participant R as RabbitMQ
+							participant L as Livraison
+							LB->>API: traceId=4bf9…
+							Note over API: span « POST /commandes »
+							API->>B: traceId=4bf9…
+							Note over B: span « paiement »
+							API->>R: traceId=4bf9…
+							R->>L: traceId=4bf9…
+							Note over L: span « préparer livraison »
+						</pre>
+					</div>
+					<aside class="notes">Le traceId passe dans un en-tête HTTP (traceparent) ou dans les en-têtes du message RabbitMQ. Chaque service crée ses spans avec le même traceId.</aside>
+				</section>
+				<section>
+					<h2>Une trace</h2>
+					<p><code>POST /commandes</code> : 1 240 ms</p>
+					<div class="trace">
+						<div class="span-ligne"><span class="nom">POST /commandes</span><div class="piste"><i class="api" style="--debut:0;--duree:100"></i></div></div>
+						<div class="span-ligne"><span class="nom">SELECT stock</span><div class="piste"><i class="base" style="--debut:2;--duree:2"></i></div></div>
+						<div class="span-ligne"><span class="nom">POST banque</span><div class="piste"><i class="lent" style="--debut:4;--duree:83"></i></div></div>
+						<div class="span-ligne"><span class="nom">publier commande</span><div class="piste"><i class="messagerie" style="--debut:88;--duree:2"></i></div></div>
+						<div class="span-ligne"><span class="nom">préparer livraison</span><div class="piste"><i class="api" style="--debut:90;--duree:10"></i></div></div>
+					</div>
+					<aside class="notes">Chaque barre est un span, placé dans le temps. Faire chercher où passe le temps : la banque, 1 030 ms sur 1 240. Ce n'est ni notre code, ni notre base.</aside>
+				</section>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="trace-lenteur">
+					<h4>Vendredi 19 h : la trace montre 1 030 ms sur 1 240 passées à attendre la banque. Que faire en premier ?</h4>
+					<ul>
+						<li><strong>A.</strong> Ajouter une quatrième instance de l'API</li>
+						<li><strong>B.</strong> Ajouter un index en base</li>
+						<li><strong>C.</strong> Regarder du côté de la banque</li>
+						<li><strong>D.</strong> Redémarrer RabbitMQ</li>
+					</ul>
+					<aside class="notes">Réponse C. A et B sont les réflexes classiques, et ne changeraient rien : le temps est passé à attendre la banque. Sans trace, on aurait pu passer la soirée à optimiser la base.</aside>
+				</section>
+				<section>
+					<h2>Les traces, à quoi ça sert ?</h2>
+					<ul>
+						<li class="fragment">Relier les lignes de log d'une même requête</li>
+						<li class="fragment">Voir les communications entre les services</li>
+						<li class="fragment">Corréler les logs et les métriques</li>
+						<li class="fragment">Trouver les points de lenteur d'une requête</li>
+					</ul>
+					<aside class="notes">Le premier point est le plus utile au quotidien : on cherche le traceId dans les logs agrégés, et on obtient toutes les lignes de la requête, sur tous les services.</aside>
+				</section>
+				<section>
+					<h2>Avec Spring Boot</h2>
+					<pre class="long"><code class="language-groovy" data-trim>
+implementation "io.micrometer:micrometer-tracing-bridge-otel"
+implementation "io.opentelemetry:opentelemetry-exporter-otlp"
+					</code></pre>
+					<p class="fragment">Le traceId apparaît tout seul dans les logs</p>
+					<pre class="long fragment"><code class="language-plaintext" data-trim>
+INFO [api,4bf92f3577b34da6,00f067aa0ba902b7] Commande 42 créée
+					</code></pre>
+					<aside class="notes">Spring Boot propage le traceId dans RestClient, WebClient et RabbitTemplate. Les traces partent vers un collecteur OpenTelemetry, puis vers Jaeger, Tempo ou Zipkin. Dans le log : le nom de l'application, le traceId, puis le spanId.</aside>
+				</section>
+			</section>
+
+			<!-- Conclusion -->
+			<section>
+				<section class="retenir">
+					<h2>À retenir</h2>
+					<ul>
+						<li>Le monitoring dit si ça marche, l'observabilité dit pourquoi</li>
+						<li>Des logs avec le bon niveau et des identifiants, agrégés</li>
+						<li>Des métriques avec Micrometer, séparées du code métier</li>
+						<li>Des traces pour suivre une requête entre les services</li>
+					</ul>
+					<aside class="notes">Retour au vendredi 19 h : les métriques montrent que les commandes sont lentes sur les trois instances, la trace montre que c'est la banque, les logs du traceId donnent le détail de l'erreur. Trois signaux, une réponse en quelques minutes.</aside>
+				</section>
+			</section>
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<!-- Chemin RELATIF : servi par audience-keeper sous /deck/, un chemin absolu
+	     (/node_modules/…) sortirait du dossier du diaporama. -->
+	<script src="node_modules/reveal.js-mermaid-plugin/plugin/mermaid/mermaid.js"></script>
+	<!-- Audience Keeper : questions en direct et diffusion des slides aux étudiants.
+	     Fourni par le serveur audience-keeper ; ailleurs (nginx seul) il est absent
+	     et le diaporama fonctionne sans. -->
+	<script src="/static/reveal-ak.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		// Mermaid donne les mêmes id aux pointes de flèche de tous les schémas : le
+		// navigateur prend celles du premier, sur une slide masquée, et les flèches
+		// perdent leur pointe. On rend ces id uniques, schéma par schéma.
+		function fixMermaidMarkers() {
+			document.querySelectorAll('.mermaid svg:not([data-markers-fixed])').forEach(svg => {
+				svg.querySelectorAll('marker').forEach(marker => {
+					marker.id = svg.id + '-' + marker.id;
+				});
+				svg.querySelectorAll('[marker-start], [marker-end]').forEach(el => {
+					['marker-start', 'marker-end'].forEach(attr => {
+						const value = el.getAttribute(attr);
+						if (value) el.setAttribute(attr, value.replace('url(#', 'url(#' + svg.id + '-'));
+					});
+				});
+				svg.setAttribute('data-markers-fixed', '');
+			});
+		}
+		// Les schémas sont insérés de façon asynchrone, y compris en mode impression
+		new MutationObserver(fixMermaidMarkers)
+			.observe(document.querySelector('.reveal .slides'), { childList: true, subtree: true });
+
+		Reveal.initialize({
+			hash: true,
+			// Couleurs des schémas, accordées à css/cours.css
+			mermaid: {
+				theme: 'base',
+				themeVariables: {
+					darkMode: true,
+					fontFamily: 'Source Sans Pro, Helvetica, sans-serif',
+					fontSize: '22px',
+					background: '#0f1724',
+					primaryColor: '#1b2a45',
+					primaryTextColor: '#e8eef7',
+					primaryBorderColor: '#4ade80',
+					secondaryColor: '#22304d',
+					tertiaryColor: '#18233a',
+					lineColor: '#7dd3fc',
+					textColor: '#e8eef7',
+					edgeLabelBackground: '#0f1724',
+					actorBkg: '#1b2a45',
+					actorBorder: '#4ade80',
+					actorTextColor: '#e8eef7',
+					actorLineColor: '#475569',
+					signalColor: '#7dd3fc',
+					signalTextColor: '#e8eef7',
+					noteBkgColor: '#3a2f14',
+					noteTextColor: '#fde68a',
+					noteBorderColor: '#f59e0b',
+					labelBoxBkgColor: '#22304d',
+					labelBoxBorderColor: '#4ade80',
+					labelTextColor: '#e8eef7',
+					loopTextColor: '#e8eef7'
+				},
+				flowchart: { curve: 'basis', padding: 16 },
+				fontSize: 22,
+				sequence: { mirrorActors: false, width: 130, actorMargin: 40 }
+			},
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMermaid]
+				.concat(window.AudienceKeeper ? [AudienceKeeper] : [])
+		});
+	</script>
+</body>
+
+</html>
