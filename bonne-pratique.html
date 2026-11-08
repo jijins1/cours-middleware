@@ -318,9 +318,20 @@ var normal = new Afficheur(
 					<p>Ce que voit le front n'est pas ce qui est en base</p>
 					<aside class="notes">L'API est un contrat avec le front et les autres équipes. Une fois publiée, elle est difficile à changer : autant la penser dès le début.</aside>
 				</section>
-				<section data-ak-question="yesno" data-ak-id="entite-controller">
-					<h4>Retourner directement l'entité JPA <code>Client</code> (avec son mot de passe) depuis un <code>@RestController</code>, bonne idée ?</h4>
-					<aside class="notes">Réponse : non. Faire justifier les réponses avant de passer à la suite.</aside>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="entite-controller-json">
+					<h4>Ce contrôleur renvoie l'entité JPA. Que reçoit le front ?</h4>
+					<pre><code class="language-java" data-trim>
+@GetMapping("/clients/{id}")
+public Client trouver(@PathVariable Long id) {
+    return clientRepository.findById(id).orElseThrow();
+}
+					</code></pre>
+					<ul>
+						<li><strong>A.</strong> L'id et l'email du client</li>
+						<li><strong>B.</strong> Tous les champs de l'entité, mot de passe hashé compris</li>
+						<li><strong>C.</strong> Tous les champs, ou une erreur selon les relations de l'entité</li>
+					</ul>
+					<aside class="notes">Réponse C. Faire justifier avant de montrer l'entité sur la slide suivante. Jackson sérialise tout ce qui a un getter : le hash du mot de passe part dans le JSON, et la liste des comptes peut boucler à l'infini ou lever une LazyInitializationException. Ceux qui répondent A pensent que Spring devine ce qui est public : il ne devine rien.</aside>
 				</section>
 				<section>
 					<h2>Ce qui se passe</h2>
@@ -472,15 +483,15 @@ public class Compte {
 					</ul>
 					<aside class="notes">Annuler un virement programmé, ce n'est pas le supprimer : on le garde dans l'historique, on change son état, on prévient le client. C'est une action métier, un verbe dans l'URL est justifié. Pour le reste, les verbes HTTP suffisent.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="supprimer-beneficiaire">
-					<h4>Quel appel pour supprimer le bénéficiaire 12 ?</h4>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="opposition-carte">
+					<h4>On vole la carte 7 d'Alice : elle fait opposition. Quel appel&nbsp;?</h4>
 					<ul>
-						<li><strong>A.</strong> <code>POST /beneficiaires/12/delete</code></li>
-						<li><strong>B.</strong> <code>DELETE /beneficiaires/12</code></li>
-						<li><strong>C.</strong> <code>GET /beneficiaires/delete?id=12</code></li>
-						<li><strong>D.</strong> <code>POST /beneficiaires/delete/12</code></li>
+						<li><strong>A.</strong> <code>DELETE /cartes/7</code></li>
+						<li><strong>B.</strong> <code>PUT /cartes/7</code> avec <code>{"statut": "OPPOSEE"}</code></li>
+						<li><strong>C.</strong> <code>POST /cartes/7/opposition</code></li>
+						<li><strong>D.</strong> <code>GET /cartes/7/opposer</code></li>
 					</ul>
-					<aside class="notes">Réponse B. La C est la pire : un GET ne doit jamais modifier quoi que ce soit, un robot d'indexation ou un préchargement du navigateur pourrait supprimer le bénéficiaire.</aside>
+					<aside class="notes">Réponse C. Une opposition n'est pas une suppression : la carte reste dans l'historique, la banque bloque les paiements, prévient le réseau et commande une nouvelle carte. C'est une action métier, comme l'annulation d'un virement. B se discute, mais un PUT remplace toute la carte et laisse le front décider du statut. D est la pire : un GET ne doit jamais rien modifier.</aside>
 				</section>
 				<section class="retenir">
 					<h2>À retenir</h2>

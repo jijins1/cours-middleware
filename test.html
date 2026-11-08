@@ -223,14 +223,22 @@
 					<p>Test Driven Development : le test d'abord</p>
 					<aside class="notes">On déroule le TDD sur la règle du plafond, en trois tours. Prendre le temps sur chaque tour : c'est le rythme qu'il faut faire sentir, pas le code, qui est trivial.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="tdd-etape-1">
-					<h4>En TDD, par quoi commence-t-on ?</h4>
-					<ul>
-						<li><strong>A.</strong> Écrire le code de la fonctionnalité</li>
-						<li><strong>B.</strong> Écrire un test qui échoue</li>
-						<li><strong>C.</strong> Refactorer le code existant</li>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="tdd-premiere-ligne">
+					<h4>Plafond de 1 000 €, rien n'existe encore. On écrit d'abord…</h4>
+					<pre><code class="language-java" data-trim>
+// A
+boolean accepte(long montant) { return montant &lt;= 100000; }
+// B
+assertTrue(new PlafondVirement().accepte(30000));
+// C
+class PlafondVirement {}
+					</code></pre>
+					<ul style="list-style: none;">
+						<li><strong>A.</strong> Le code de la règle</li>
+						<li><strong>B.</strong> Le test</li>
+						<li><strong>C.</strong> La classe vide</li>
 					</ul>
-					<aside class="notes">Réponse B. Poser la question avant d'expliquer : beaucoup répondent A, et c'est justement ce que le TDD inverse.</aside>
+					<aside class="notes">Réponse B. Poser la question avant d'expliquer : beaucoup répondent A, et c'est justement ce que le TDD inverse. Ceux qui répondent C ont presque raison : la classe vient juste après, mais le test d'abord, même s'il ne compile pas. Un test qui ne compile pas est rouge.</aside>
 				</section>
 				<section>
 					<h2>Le cycle</h2>
@@ -533,14 +541,21 @@ assertEquals(5, calculator.calculate(2, 3));
 					</ul>
 					<aside class="notes">Ce test est toujours vert, quoi que fasse calculate tant qu'elle passe la main. Demander : quelle décision VirementService prend-elle ? Refuser ou envoyer. C'est ça qu'on teste.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="mock-verifier-sepa">
-					<h4>Pour vérifier que rien n'est parti vers le réseau SEPA, de quoi a-t-on besoin ?</h4>
-					<ul>
-						<li><strong>A.</strong> D'un compte de test chez une autre banque</li>
-						<li><strong>B.</strong> D'un mock de <code>SepaClient</code> et de <code>verify</code></li>
-						<li><strong>C.</strong> D'un <code>assertEquals</code> sur le retour de <code>virer</code></li>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="mock-virement-gros-montant">
+					<h4>Au-delà de 10 000 €, le virement ne part pas : il attend la validation d'un conseiller. Que vérifier ?</h4>
+					<pre><code class="language-java" data-trim>
+// 1
+verify(validationService).demander(virement);
+
+// 2
+verify(sepaClient, never()).envoyer(any(), any(), anyLong());
+					</code></pre>
+					<ul style="list-style: none;">
+						<li><strong>A.</strong> 1 seulement</li>
+						<li><strong>B.</strong> 2 seulement</li>
+						<li><strong>C.</strong> 1 et 2</li>
 					</ul>
-					<aside class="notes">Réponse B. C ne marche pas : virer ne renvoie rien, l'effet est un appel à un autre objet. A : jamais de vrai service externe dans un test.</aside>
+					<aside class="notes">Réponse C. La décision de la classe, c'est deux choses : demander la validation ET ne pas envoyer. Avec 1 seul, un service qui demande la validation puis envoie quand même l'argent reste vert. Avec 2 seul, un service qui ne fait rien du tout reste vert : le virement est perdu.</aside>
 				</section>
 				<section>
 					<h2>C'est quoi un fake ?</h2>
@@ -873,14 +888,26 @@ class VirementControllerTest {
 					</code></pre>
 					<aside class="notes">@MockitoBean existe depuis Spring Boot 3.4 ; avant, c'était @MockBean. Même rôle que @Mock, mais le faux est placé dans le contexte Spring. Bon exercice oral : comment tester le cas 404, quand le virement n'existe pas ?</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="niveau-de-test">
-					<h4>Un test qui démarre l'application avec un PostgreSQL Testcontainers et appelle <code>GET /api/comptes</code> en JSON, c'est un test…</h4>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="niveau-de-test-controleur">
+					<h4>Ce test de contrôleur, c'est un test…</h4>
+					<pre class="long"><code class="language-java" data-trim>
+@Test
+void renvoie404QuandLeVirementNExistePas() {
+    var service = mock(VirementService.class);
+    when(service.trouver(42))
+            .thenThrow(new VirementIntrouvableException(42));
+
+    var reponse = new VirementController(service).lire(42);
+
+    assertEquals(HttpStatus.NOT_FOUND, reponse.getStatusCode());
+}
+					</code></pre>
 					<ul>
 						<li><strong>A.</strong> unitaire</li>
 						<li><strong>B.</strong> d'intégration</li>
 						<li><strong>C.</strong> end-to-end</li>
 					</ul>
-					<aside class="notes">Réponse B. Il y a une vraie base et le framework, mais pas de navigateur ni de front : ce n'est pas un end-to-end.</aside>
+					<aside class="notes">Réponse A. Le piège : on teste un contrôleur et on vérifie un HttpStatus, donc ça « sent » le web. Mais il n'y a ni contexte Spring, ni requête HTTP, ni base : juste un new et un mock. Le test vérifie une décision de la classe (introuvable donne 404). Il ne vérifie pas l'URL, la lecture du 42 dans le chemin ni le JSON produit : c'est ce qu'apporte @WebMvcTest, vu juste avant. Relancer : que faudrait-il ajouter pour en faire un test d'intégration ?</aside>
 				</section>
 				<section>
 					<h2>Un client HTTP vers un partenaire</h2>

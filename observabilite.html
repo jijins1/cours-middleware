@@ -148,15 +148,15 @@
 					</table>
 					<aside class="notes">Faire relire le tableau à voix haute, puis question.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="obs-outil">
-					<h4>Le site ne répond plus à 3 h du matin. Envoyer un SMS à la personne d'astreinte, c'est le rôle…</h4>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="obs-virement-perdu">
+					<h4>Lundi matin, Alice appelle : son virement de 250 € à Bob, fait vendredi, n'est jamais arrivé. Tous les tableaux de bord sont verts. Qu'ouvrez-vous en premier ?</h4>
 					<ul>
-						<li><strong>A.</strong> du monitoring</li>
-						<li><strong>B.</strong> de l'alerting</li>
-						<li><strong>C.</strong> des logs</li>
-						<li><strong>D.</strong> de l'observabilité</li>
+						<li><strong>A.</strong> Le monitoring</li>
+						<li><strong>B.</strong> L'alerting</li>
+						<li><strong>C.</strong> Les logs</li>
+						<li><strong>D.</strong> L'observabilité</li>
 					</ul>
-					<aside class="notes">Réponse B. Le monitoring a détecté la panne, l'alerting prévient. Les deux vont ensemble mais ne font pas la même chose.</aside>
+					<aside class="notes">Réponse C. La question porte sur une requête précise : que s'est-il passé pour le virement d'Alice ? Le monitoring est vert, il ne dit rien d'un cas isolé. Si les logs montrent un problème plus large, l'observabilité prend le relais.</aside>
 				</section>
 				<section>
 					<h2>Pourquoi maintenant ?</h2>
@@ -431,15 +431,15 @@ jvm_memory_used_bytes{area="heap"} 1.43E8
 					</table>
 					<aside class="notes">Un compteur ne fait que monter. Une jauge monte et descend. Un timer et une distribution donnent le nombre, la somme, le maximum, et des percentiles si on les active.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="metrique-type">
-					<h4>On veut suivre le nombre de clients connectés en ce moment. Quel type de mesure ?</h4>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="metrique-taux-refus">
+					<h4>On veut être alerté si plus de 5 % des virements sont refusés sur les 10 dernières minutes. Quel type de mesure enregistre l'application ?</h4>
 					<ul>
 						<li><strong>A.</strong> Compteur</li>
 						<li><strong>B.</strong> Durée</li>
 						<li><strong>C.</strong> Jauge</li>
 						<li><strong>D.</strong> Distribution</li>
 					</ul>
-					<aside class="notes">Réponse C : la valeur monte et descend. Un compteur ne peut que monter.</aside>
+					<aside class="notes">Réponse A : un compteur de virements, avec un tag statut (accepte ou refuse). C'est l'outil de monitoring qui calcule le taux sur 10 minutes, à partir de deux compteurs. Ceux qui répondent C veulent que l'application calcule elle-même le pourcentage : ça marche mal, car chaque instance a son propre taux et on ne peut pas les additionner.</aside>
 				</section>
 				<section>
 					<h2>Mesurer un virement : mauvaise façon</h2>

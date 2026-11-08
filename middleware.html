@@ -301,13 +301,21 @@ server {
 					<p>Exemples : Nginx, Traefik, Caddy, HAProxy</p>
 					<aside class="notes">La différence est dans l'intention, pas dans l'outil.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="2" data-ak-id="lb-ou-rp">
-					<h4>Ajouter une 2ᵉ instance de l'application pour encaisser le pic du jour de paie : c'est d'abord le rôle…</h4>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="nginx-api-docs">
+					<h4>Avec cette configuration, qui répond à <code>GET https://app.banque.example/api-docs</code> ?</h4>
+					<pre><code class="language-nginx" data-trim>
+server {
+    server_name app.banque.example;
+    location /api/ { proxy_pass http://api:8080; }
+    location /     { proxy_pass http://front:80; }
+}
+					</code></pre>
 					<ul style="list-style: none;">
-						<li><strong>A.</strong> du reverse proxy (préoccupation DEV)</li>
-						<li><strong>B.</strong> du load balancer (préoccupation OPS)</li>
+						<li><strong>A.</strong> L'API</li>
+						<li><strong>B.</strong> Le front</li>
+						<li><strong>C.</strong> Nginx renvoie une 404</li>
 					</ul>
-					<aside class="notes">Réponse : B. Plusieurs instances d'une même application pour tenir la charge, c'est l'acte 1.</aside>
+					<aside class="notes">Réponse B. /api-docs ne commence pas par /api/ : il manque la barre oblique. Nginx prend donc location /, et c'est le front qui répond, sans doute avec sa page d'accueil ou une 404 Angular. Bug classique quand on ajoute la documentation Swagger de l'API.</aside>
 				</section>
 			</section>
 

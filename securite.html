@@ -98,14 +98,9 @@
 					</table>
 					<aside class="notes">On appelle ça des facteurs d'authentification. On y revient avec l'authentification forte, qui en combine plusieurs.</aside>
 				</section>
-				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="facteur-sms">
-					<h4>Un code reçu par SMS prouve quelque chose que l'utilisateur…</h4>
-					<ul style="list-style: none;">
-						<li><strong>A.</strong> sait</li>
-						<li><strong>B.</strong> possède</li>
-						<li><strong>C.</strong> est</li>
-					</ul>
-					<aside class="notes">Réponse : B. Le code change à chaque fois : ce qui compte, c'est d'avoir le téléphone en main. Le code lui-même ne se retient pas.</aside>
+				<section data-ak-question="yesno" data-ak-id="deux-facteurs-date-naissance">
+					<h4>À la connexion, la banque demande le mot de passe d'Alice, puis sa date de naissance. Est-ce une authentification à deux facteurs ?</h4>
+					<aside class="notes">Réponse : non. Deux étapes, mais un seul facteur : ce qu'Alice sait. Et sa date de naissance, beaucoup de monde la sait aussi. Un code reçu par SMS, lui, serait un deuxième facteur : il prouve qu'Alice possède son téléphone.</aside>
 				</section>
 				<section>
 					<h2>Le mot de passe : comment l'envoyer ?</h2>
@@ -141,9 +136,17 @@
 					</ol>
 					<aside class="notes">À faire tester : echo -n 'alice:livret42' | base64 dans un terminal, puis le décodage avec base64 -d.</aside>
 				</section>
-				<section data-ak-question="yesno" data-ak-id="basic-chiffre">
-					<h4>Avec Basic Auth, le mot de passe envoyé est-il chiffré ?</h4>
-					<aside class="notes">Réponse : non. Base64 est un encodage, pas un chiffrement : n'importe qui le décode, sans clé.</aside>
+				<section data-ak-question="choice" data-ak-choices="3" data-ak-id="basic-wifi-gare">
+					<h4>L'API de la banque est en HTTP. Sur le wifi de la gare, Eve capture ce header. Que peut-elle faire ?</h4>
+					<pre><code class="language-http" data-trim>
+Authorization: Basic Ym9iOm1hcmdvdDc3
+					</code></pre>
+					<ul style="list-style: none;">
+						<li><strong>A.</strong> Rien : il faudrait la clé du serveur pour le lire</li>
+						<li><strong>B.</strong> Savoir que c'est Bob, mais pas son mot de passe</li>
+						<li><strong>C.</strong> Lire son mot de passe et se connecter à sa place</li>
+					</ul>
+					<aside class="notes">Réponse C. Faire décoder en direct : echo 'Ym9iOm1hcmdvdDc3' | base64 -d donne bob:margot77. Base64 est un encodage, pas un chiffrement : aucune clé. Et si Bob utilise le même mot de passe ailleurs, Eve a aussi ces comptes.</aside>
 				</section>
 				<section>
 					<h2>Base64 n'est pas du chiffrement</h2>
@@ -520,9 +523,15 @@ provideHttpClient(withInterceptors([authInterceptor]))
 					</code></pre>
 					<aside class="notes">Les deux premières parties sont du JSON encodé en Base64. sub : l'identifiant de l'utilisateur. iat : la date de création. exp : la date d'expiration, ici une heure plus tard. Ces dates sont en secondes depuis 1970.</aside>
 				</section>
-				<section data-ak-question="yesno" data-ak-id="jwt-lisible">
-					<h4>Sans connaître le secret, peut-on lire le contenu d'un JWT ?</h4>
-					<aside class="notes">Réponse : oui. Ce n'est que du Base64, comme Basic Auth.</aside>
+				<section data-ak-question="choice" data-ak-choices="4" data-ak-id="jwt-contenu">
+					<h4>Pour éviter d'interroger la base à chaque requête, on veut mettre plus d'informations dans le JWT d'Alice. Laquelle ne doit surtout pas y aller ?</h4>
+					<ul>
+						<li><strong>A.</strong> Son identifiant</li>
+						<li><strong>B.</strong> Ses rôles</li>
+						<li><strong>C.</strong> Le numéro de sa carte bancaire</li>
+						<li><strong>D.</strong> La date d'expiration du token</li>
+					</ul>
+					<aside class="notes">Réponse C. N'importe qui peut lire un JWT, comme Basic Auth : ce n'est que du Base64. Le token traîne dans le navigateur, dans les logs, dans les outils de debug. A, B et D sont justement ce qu'on y met : sub, roles et exp.</aside>
 				</section>
 				<section>
 					<h2>Signé, pas chiffré</h2>
